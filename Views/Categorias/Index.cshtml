@@ -1,0 +1,86 @@
+﻿@model List<AgenticContextEngine.Models.CategoriaAgente>
+@{
+    ViewData["Title"] = "Categorias";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categorias â€” Agentic Context Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f1117; font-family: 'Segoe UI', system-ui, sans-serif; color: #f1f5f9; }
+        .topbar { background: #1a1d27; border-bottom: 1px solid #2a2d3d; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .topbar h1 { font-size: 18px; font-weight: 700; color: #f1f5f9; }
+        .topbar a { color: #6366f1; text-decoration: none; font-size: 14px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .header h2 { font-size: 22px; font-weight: 700; }
+        .btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn:hover { opacity: 0.9; }
+        .btn-danger { background: #7f1d1d; color: #fca5a5; }
+        .btn-edit { background: #1e3a5f; color: #93c5fd; }
+        table { width: 100%; border-collapse: collapse; background: #1a1d27; border-radius: 12px; overflow: hidden; }
+        th { background: #2a2d3d; padding: 14px 20px; text-align: left; font-size: 13px; color: #94a3b8; font-weight: 600; }
+        td { padding: 14px 20px; border-bottom: 1px solid #2a2d3d; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        .badge { background: #14532d; color: #86efac; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-off { background: #3f1d1d; color: #fca5a5; }
+        .actions { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>âš¡ Agentic Context Engine</h1>
+        <div style="display:flex;gap:20px;">
+            <a href="/Categorias">Categorias</a>
+            <a href="/Agentes">Agentes</a>
+            <a href="/Usuarios">Usuários</a>
+            <a href="/Canais">Canais</a>
+            <a href="/Auth/Logout">Sair</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h2>Categorias de Agente</h2>
+            <a href="/Categorias/Criar" class="btn">+ Nova Categoria</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in Model)
+                {
+                    <tr>
+                        <td>@cat.Id</td>
+                        <td>@cat.Nome</td>
+                        <td>@cat.Descricao</td>
+                        <td><span class="badge @(cat.Ativo ? "" : "badge-off")">@(cat.Ativo ? "Ativo" : "Inativo")</span></td>
+                        <td>
+                            <div class="actions">
+                                <a href="/Categorias/Editar/@cat.Id" class="btn btn-edit">Editar</a>
+                                <a href="/Categorias/Excluir/@cat.Id" class="btn btn-danger" onclick="return confirm('Excluir esta categoria?')">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+
+

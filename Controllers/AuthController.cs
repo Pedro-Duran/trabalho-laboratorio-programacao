@@ -20,7 +20,7 @@ namespace AgenticContextEngine.Controllers
         public IActionResult Login()
         {
             if (HttpContext.Session.GetString("UsuarioId") != null)
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Categorias");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace AgenticContextEngine.Controllers
             });
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Categorias");
         }
 
         public IActionResult Logout()
@@ -69,3 +69,4 @@ namespace AgenticContextEngine.Controllers
         }
     }
 }
+

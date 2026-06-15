@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,8 +34,10 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Auth}/{action=Login}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Login}/{id?}");
+app.MapControllerRoute(name: "areas", pattern: "{controller}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "areas", pattern: "{controller}/{action=Index}/{id?}");
 
 app.Run();
+
+
