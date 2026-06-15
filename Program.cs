@@ -1,24 +1,16 @@
-// =====================================================
-// AGENTIC CONTEXT ENGINE - Program.cs
-// Configuração principal da aplicação ASP.NET Core MVC
-// =====================================================
-
 using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── MVC ─────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 
-// ── Entity Framework + SQL Server ───────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
 
-// ── Sessão (para login) ──────────────────────────────
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -28,7 +20,6 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-// ── Build ────────────────────────────────────────────
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -40,11 +31,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 app.UseSession();
 app.UseAuthorization();
 
-// Rota padrão → Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
