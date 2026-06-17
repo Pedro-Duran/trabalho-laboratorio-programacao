@@ -3,6 +3,23 @@ using AgenticContextEngine.Data;
 using AgenticContextEngine.Services;
 using AgenticContextEngine.Models;
 
+// Carrega variaveis do .env (credenciais do MySQL do docker-compose) para o ambiente do processo
+var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envFile))
+{
+    foreach (var line in File.ReadAllLines(envFile))
+    {
+        var trimmed = line.Trim();
+        if (trimmed.Length == 0 || trimmed.StartsWith('#')) continue;
+        var idx = trimmed.IndexOf('=');
+        if (idx <= 0) continue;
+        var key = trimmed[..idx].Trim();
+        var value = trimmed[(idx + 1)..].Trim();
+        if (Environment.GetEnvironmentVariable(key) == null)
+            Environment.SetEnvironmentVariable(key, value);
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // =======================================
@@ -13,8 +30,18 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+var mysqlHost = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
+var mysqlPort = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
+var mysqlDatabase = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "agente_contexto";
+var mysqlUser = Environment.GetEnvironmentVariable("MYSQL_USER") ?? "agente_user";
+var mysqlPassword = Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? "";
+
+var connectionString =
+    $"Server={mysqlHost};Port={mysqlPort};Database={mysqlDatabase};User={mysqlUser};Password={mysqlPassword};";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=agentic.db"));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+);
 
 builder.Services.AddSession(options =>
 {
