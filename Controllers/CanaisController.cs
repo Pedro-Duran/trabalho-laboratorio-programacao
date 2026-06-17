@@ -18,7 +18,10 @@ namespace AgenticContextEngine.Controllers
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
+
             var canais = await _db.CanalOrigem.ToListAsync();
+            ViewBag.TotalSessoes = await _db.SessaoAtendimento.CountAsync();
+
             return View(canais);
         }
 
@@ -32,6 +35,7 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Criar(CanalOrigem canal)
         {
+            canal.DataCriacao = DateTime.Now;
             _db.CanalOrigem.Add(canal);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

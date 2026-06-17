@@ -1,95 +1,525 @@
-﻿@{ ViewData["Title"] = "Login"; Layout = null; }
+﻿@{
+    ViewData["Title"] = "Login"; Layout = null;
+}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<title>Agentic Context Engine</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;background:#050a1a;font-family:Inter,sans-serif;color:#f1f5f9;display:flex;flex-direction:column}
-.top{display:flex;flex:1}
-.left{flex:1;padding:48px 56px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
-.logo-row{display:flex;align-items:center;gap:14px;margin-bottom:48px}
-.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:12px;display:flex;align-items:center;justify-content:center}
-.logo-icon svg{width:28px;height:28px;fill:white}
-.logo-text h1{font-size:18px;font-weight:800;color:#f1f5f9}
-.logo-text span{font-size:14px;color:#3b82f6;font-weight:600}
-.hero h2{font-size:40px;font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:16px}
-.hero h2 .blue{color:#3b82f6}
-.hero p{color:#94a3b8;font-size:15px;line-height:1.7;max-width:380px;margin-bottom:40px}
-.safe-row{display:flex;align-items:center;gap:8px;color:#64748b;font-size:13px}
-.right{width:520px;background:#080e1e;border-left:1px solid #0f1f3d;display:flex;align-items:center;justify-content:center;padding:48px}
-.form-card{width:100%;max-width:400px}
-.lock-icon{width:64px;height:64px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
-.lock-icon svg{width:32px;height:32px;fill:none;stroke:white;stroke-width:1.5}
-.form-card h3{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px}
-.form-card h3 .blue{color:#3b82f6}
-.form-card .sub{color:#64748b;font-size:14px;text-align:center;margin-bottom:32px}
-.fg{margin-bottom:18px}
-.fg label{display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:8px}
-.iw{position:relative}
-.iw svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:#475569;stroke-width:1.5;pointer-events:none}
-.iw input{width:100%;background:#0d1526;border:1px solid #1e3a8a;border-radius:10px;padding:13px 16px 13px 44px;color:#f1f5f9;font-size:14px;font-family:Inter,sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
-.iw input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-.iw input::placeholder{color:#334155}
-.row-opt{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.check-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#94a3b8}
-.forgot{font-size:13px;color:#3b82f6;text-decoration:none}
-.btn-main{width:100%;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
-.btn-main svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2}
-.divider{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#0f1f3d}
-.divider span{color:#334155;font-size:12px}
-.btn-guest{width:100%;background:transparent;color:#3b82f6;border:1px solid #1e3a8a;border-radius:10px;padding:13px;font-size:14px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
-.btn-guest svg{width:18px;height:18px;fill:none;stroke:#3b82f6;stroke-width:1.5}
-.security{display:flex;align-items:center;justify-content:center;gap:8px;color:#334155;font-size:12px}
-.erro{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px;color:#fca5a5;font-size:13px;text-align:center;margin-bottom:16px}
-.bottom{background:#030712;border-top:1px solid #0f1f3d;padding:24px 56px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
-.feat{display:flex;align-items:flex-start;gap:12px}
-.feat-icon{width:36px;height:36px;background:#0f1f3d;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.feat-icon svg{width:18px;height:18px;fill:none;stroke:#3b82f6;stroke-width:1.5}
-.feat-text h4{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:3px}
-.feat-text p{font-size:12px;color:#475569;line-height:1.5}
-.copy{text-align:center;padding:16px;color:#334155;font-size:12px;border-top:1px solid #0f1f3d}
-</style>
+    <meta charset="utf-8" />
+    <title>Agentic Context Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box
+            }
+
+            body {
+                min-height: 100vh;
+                background: #050a1a;
+                font-family: Inter,sans-serif;
+                color: #f1f5f9;
+                display: flex;
+                flex-direction: column
+            }
+
+            .top {
+                display: flex;
+                flex: 1
+            }
+
+            .left {
+                flex: 1;
+                padding: 48px 56px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                position: relative;
+                overflow: hidden
+            }
+
+            .logo-row {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                margin-bottom: 48px
+            }
+
+            .logo-icon {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg,#1d4ed8,#3b82f6);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center
+            }
+
+                .logo-icon svg {
+                    width: 28px;
+                    height: 28px;
+                    fill: white
+                }
+
+            .logo-text h1 {
+                font-size: 18px;
+                font-weight: 800;
+                color: #f1f5f9
+            }
+
+            .logo-text span {
+                font-size: 14px;
+                color: #3b82f6;
+                font-weight: 600
+            }
+
+            .hero h2 {
+                font-size: 40px;
+                font-weight: 800;
+                line-height: 1.1;
+                letter-spacing: -1px;
+                margin-bottom: 16px
+            }
+
+                .hero h2 .blue {
+                    color: #3b82f6
+                }
+
+            .hero p {
+                color: #94a3b8;
+                font-size: 15px;
+                line-height: 1.7;
+                max-width: 380px;
+                margin-bottom: 40px
+            }
+
+            .right {
+                width: 520px;
+                background: #080e1e;
+                border-left: 1px solid #0f1f3d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 48px
+            }
+
+            .form-card {
+                width: 100%;
+                max-width: 400px
+            }
+
+            .lock-icon {
+                width: 64px;
+                height: 64px;
+                background: linear-gradient(135deg,#1e3a8a,#1d4ed8);
+                border-radius: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px
+            }
+
+                .lock-icon svg {
+                    width: 32px;
+                    height: 32px;
+                    fill: none;
+                    stroke: white;
+                    stroke-width: 1.5
+                }
+
+            .form-card h3 {
+                font-size: 22px;
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 6px
+            }
+
+                .form-card h3 .blue {
+                    color: #3b82f6
+                }
+
+            .form-card .sub {
+                color: #64748b;
+                font-size: 14px;
+                text-align: center;
+                margin-bottom: 32px
+            }
+
+            .fg {
+                margin-bottom: 18px
+            }
+
+                .fg label {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #94a3b8;
+                    margin-bottom: 8px
+                }
+
+            .iw {
+                position: relative
+            }
+
+                .iw svg {
+                    position: absolute;
+                    left: 14px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 18px;
+                    height: 18px;
+                    fill: none;
+                    stroke: #475569;
+                    stroke-width: 1.5;
+                    pointer-events: none
+                }
+
+                .iw input {
+                    width: 100%;
+                    background: #0d1526;
+                    border: 1px solid #1e3a8a;
+                    border-radius: 10px;
+                    padding: 13px 16px 13px 44px;
+                    color: #f1f5f9;
+                    font-size: 14px;
+                    font-family: Inter,sans-serif;
+                    outline: none;
+                    transition: border-color .2s,box-shadow .2s
+                }
+
+                    .iw input:focus {
+                        border-color: #3b82f6;
+                        box-shadow: 0 0 0 3px rgba(59,130,246,.15)
+                    }
+
+                    .iw input::placeholder {
+                        color: #334155
+                    }
+
+            .row-opt {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 24px
+            }
+
+            .check-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: #94a3b8
+            }
+
+            .forgot {
+                font-size: 13px;
+                color: #3b82f6;
+                text-decoration: none;
+                cursor: pointer;
+                background: none;
+                border: none;
+                font-family: Inter,sans-serif
+            }
+
+            .btn-main {
+                width: 100%;
+                background: linear-gradient(135deg,#1d4ed8,#3b82f6);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                padding: 14px;
+                font-size: 15px;
+                font-weight: 600;
+                font-family: Inter,sans-serif;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 16px
+            }
+
+                .btn-main svg {
+                    width: 18px;
+                    height: 18px;
+                    fill: none;
+                    stroke: white;
+                    stroke-width: 2
+                }
+
+            .divider {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px
+            }
+
+                .divider::before, .divider::after {
+                    content: '';
+                    flex: 1;
+                    height: 1px;
+                    background: #0f1f3d
+                }
+
+                .divider span {
+                    color: #334155;
+                    font-size: 12px
+                }
+
+            .btn-guest {
+                width: 100%;
+                background: transparent;
+                color: #3b82f6;
+                border: 1px solid #1e3a8a;
+                border-radius: 10px;
+                padding: 13px;
+                font-size: 14px;
+                font-weight: 600;
+                font-family: Inter,sans-serif;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 24px
+            }
+
+                .btn-guest svg {
+                    width: 18px;
+                    height: 18px;
+                    fill: none;
+                    stroke: #3b82f6;
+                    stroke-width: 1.5
+                }
+
+            .security {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                color: #334155;
+                font-size: 12px
+            }
+
+            .erro {
+                background: rgba(239,68,68,.1);
+                border: 1px solid rgba(239,68,68,.3);
+                border-radius: 10px;
+                padding: 12px;
+                color: #fca5a5;
+                font-size: 13px;
+                text-align: center;
+                margin-bottom: 16px
+            }
+
+            .sucesso {
+                background: rgba(34,197,94,.1);
+                border: 1px solid rgba(34,197,94,.3);
+                border-radius: 10px;
+                padding: 12px;
+                color: #86efac;
+                font-size: 13px;
+                text-align: center;
+                margin-bottom: 16px;
+                display: none
+            }
+
+            .bottom {
+                background: #030712;
+                border-top: 1px solid #0f1f3d;
+                padding: 24px 56px;
+                display: grid;
+                grid-template-columns: repeat(4,1fr);
+                gap: 32px
+            }
+
+            .feat {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px
+            }
+
+            .feat-icon {
+                width: 36px;
+                height: 36px;
+                background: #0f1f3d;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0
+            }
+
+                .feat-icon svg {
+                    width: 18px;
+                    height: 18px;
+                    fill: none;
+                    stroke: #3b82f6;
+                    stroke-width: 1.5
+                }
+
+            .feat-text h4 {
+                font-size: 13px;
+                font-weight: 600;
+                color: #f1f5f9;
+                margin-bottom: 3px
+            }
+
+            .feat-text p {
+                font-size: 12px;
+                color: #475569;
+                line-height: 1.5
+            }
+
+            .copy {
+                text-align: center;
+                padding: 16px;
+                color: #334155;
+                font-size: 12px;
+                border-top: 1px solid #0f1f3d
+            }
+
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.75);
+                z-index: 9999;
+                align-items: center;
+                justify-content: center
+            }
+
+                .modal-overlay.show {
+                    display: flex
+                }
+
+            .modal-box {
+                background: #0d1526;
+                border: 1px solid #1e3a8a;
+                border-radius: 16px;
+                padding: 36px;
+                max-width: 420px;
+                width: 90%;
+                text-align: center
+            }
+
+                .modal-box h3 {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #f1f5f9;
+                    margin-bottom: 8px
+                }
+
+                .modal-box p {
+                    color: #64748b;
+                    font-size: 14px;
+                    margin-bottom: 20px
+                }
+
+            .modal-input {
+                width: 100%;
+                background: #080e1e;
+                border: 1px solid #1e3a8a;
+                border-radius: 10px;
+                padding: 13px 16px;
+                color: #f1f5f9;
+                font-size: 14px;
+                font-family: Inter,sans-serif;
+                outline: none;
+                margin-bottom: 14px
+            }
+
+            .modal-hint {
+                background: rgba(59,130,246,.1);
+                border: 1px solid rgba(59,130,246,.2);
+                border-radius: 8px;
+                padding: 10px;
+                color: #93c5fd;
+                font-size: 12px;
+                margin-top: 12px
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 13px;
+                cursor: pointer;
+                margin-top: 12px;
+                font-family: Inter,sans-serif
+            }
+    </style>
 </head>
 <body>
-<div class="top">
-<div class="left">
-<div class="logo-row">
-<div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
-<div class="logo-text"><h1>Agentic</h1><span>Context Engine</span></div>
-</div>
-<div class="hero">
-<h2>Memoria inteligente.<br/>Agentes conectados.<br/><span class="blue">Resultados reais.</span></h2>
-<p>Plataforma completa para memoria e gestao de agentes digitais. Armazene, orquestre e potencialize interacoes em todos os canais.</p>
-</div>
-</div>
-<div class="right">
-<div class="form-card">
-<div class="lock-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
-<h3>Bem-vindo de <span class="blue">volta!</span></h3>
-<p class="sub">Acesse sua conta para continuar</p>
-@if (ViewBag.Erro != null) { <div class="erro">@ViewBag.Erro</div> }
-<form method="post" action="/Auth/Login">
-<div class="fg"><label>Usuario</label><div class="iw"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><input type="email" name="email" placeholder="Digite seu usuario ou e-mail" required /></div></div>
-<div class="fg"><label>Senha</label><div class="iw"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><input type="password" name="senha" placeholder="Digite sua senha" required /></div></div>
-<div class="row-opt"><label class="check-row"><input type="checkbox" /> Lembrar-me</label><a href="#" class="forgot">Esqueci minha senha</a></div>
-<button type="submit" class="btn-main"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>Entrar na plataforma</button>
-</form>
-<div class="divider"><span>ou</span></div>
-<button class="btn-guest"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Acessar como convidado</button>
-<div class="security">Seus dados estao protegidos com criptografia de ponta a ponta.</div>
-</div>
-</div>
-</div>
-<div class="bottom">
-<div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="feat-text"><h4>Seguranca Total</h4><p>Dados protegidos com criptografia avancada</p></div></div>
-<div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg></div><div class="feat-text"><h4>Memoria Persistente</h4><p>Historico completo de todas as interacoes</p></div></div>
-<div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><div class="feat-text"><h4>Insights Poderosos</h4><p>Dashboards para decisoes estrategicas</p></div></div>
-<div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><div class="feat-text"><h4>Alta Performance</h4><p>Infraestrutura robusta para escalar</p></div></div>
-</div>
-<div class="copy">2024 Agentic Context Engine. Todos os direitos reservados.</div>
+    <div class="top">
+        <div class="left">
+            <div class="logo-row">
+                <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg></div>
+                <div class="logo-text"><h1>Agentic</h1><span>Context Engine</span></div>
+            </div>
+            <div class="hero">
+                <h2>Memoria inteligente.<br />Agentes conectados.<br /><span class="blue">Resultados reais.</span></h2>
+                <p>Plataforma completa para memoria e gestao de agentes digitais. Armazene, orquestre e potencialize interacoes em todos os canais.</p>
+            </div>
+        </div>
+        <div class="right">
+            <div class="form-card">
+                <div class="lock-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></div>
+                <h3>Bem-vindo de <span class="blue">volta!</span></h3>
+                <p class="sub">Acesse sua conta para continuar</p>
+                @if (ViewBag.Erro != null)
+                {
+                    <div class="erro">@ViewBag.Erro</div>
+                }
+                <div class="sucesso" id="msgSucesso">✅ Instrucoes enviadas! Verifique seu e-mail.</div>
+                <form method="post" action="/Auth/Login">
+                    @Html.AntiForgeryToken()
+                    <div class="fg"><label>Usuario</label><div class="iw"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg><input type="email" name="email" placeholder="admin@sistema.com" required /></div></div>
+                    <div class="fg"><label>Senha</label><div class="iw"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg><input type="password" name="senha" placeholder="Digite sua senha" required /></div></div>
+                    <div class="row-opt"><label class="check-row"><input type="checkbox" /> Lembrar-me</label><button type="button" class="forgot" onclick="abrirModal()">Esqueci minha senha</button></div>
+                    <button type="submit" class="btn-main"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>Entrar na plataforma</button>
+                </form>
+                <div class="divider"><span>ou</span></div>
+                <form method="post" action="/Auth/Convidado">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-guest"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Acessar como convidado</button>
+                </form>
+                <div class="security">Seus dados estao protegidos com criptografia de ponta a ponta.</div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg></div><div class="feat-text"><h4>Seguranca Total</h4><p>Dados protegidos com criptografia avancada</p></div></div>
+        <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" /></svg></div><div class="feat-text"><h4>Memoria Persistente</h4><p>Historico completo de todas as interacoes</p></div></div>
+        <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></div><div class="feat-text"><h4>Insights Poderosos</h4><p>Dashboards para decisoes estrategicas</p></div></div>
+        <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></div><div class="feat-text"><h4>Alta Performance</h4><p>Infraestrutura robusta para escalar</p></div></div>
+    </div>
+    <div class="copy">2024 Agentic Context Engine. Todos os direitos reservados.</div>
+    <div class="modal-overlay" id="modalEsqueci">
+        <div class="modal-box">
+            <h3>🔑 Recuperar Senha</h3>
+            <p>Digite seu e-mail e exibiremos as instrucoes de acesso.</p>
+            <input class="modal-input" type="email" id="emailRecuperar" placeholder="seu@email.com" />
+            <button class="btn-main" onclick="enviarRecuperacao()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Enviar instrucoes</button>
+            <div class="modal-hint">💡 Credenciais padrao: <strong>admin@sistema.com</strong> / <strong>123456</strong></div>
+            <br /><button class="modal-close" onclick="fecharModal()">Fechar</button>
+        </div>
+    </div>
+    <script>
+            function abrirModal(){document.getElementById('modalEsqueci').classList.add('show');}
+            function fecharModal(){document.getElementById('modalEsqueci').classList.remove('show');}
+            function enviarRecuperacao(){
+              var email=document.getElementById('emailRecuperar').value;
+              if(!email){alert('Digite um e-mail!');return;}
+              fecharModal();
+              var msg=document.getElementById('msgSucesso');
+              msg.style.display='block';
+              setTimeout(function(){msg.style.display='none';},4000);
+            }
+            document.getElementById('modalEsqueci').addEventListener('click',function(e){if(e.target===this)fecharModal();});
+    </script>
 </body>
 </html>

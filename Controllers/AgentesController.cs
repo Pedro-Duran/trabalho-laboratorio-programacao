@@ -22,6 +22,10 @@ namespace AgenticContextEngine.Controllers
             var agentes = await _db.Agente
                 .Include(a => a.CategoriaAgente)
                 .ToListAsync();
+
+            ViewBag.TotalMensagens = await _db.Mensagem.CountAsync();
+            ViewBag.TotalMemorias = await _db.ContextoMemoria.CountAsync();
+
             return View(agentes);
         }
 
@@ -37,6 +41,7 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Criar(Agente agente)
         {
+            agente.DataCriacao = DateTime.Now;
             _db.Agente.Add(agente);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

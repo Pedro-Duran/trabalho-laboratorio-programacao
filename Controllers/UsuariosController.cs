@@ -22,6 +22,10 @@ namespace AgenticContextEngine.Controllers
             var usuarios = await _db.Usuario
                 .Include(u => u.PerfilAcesso)
                 .ToListAsync();
+
+            ViewBag.TotalAdmins = usuarios.Count(u => u.PerfilAcesso?.Nome == "Administrador");
+            ViewBag.TotalPerfis = await _db.PerfilAcesso.CountAsync();
+
             return View(usuarios);
         }
 
@@ -37,6 +41,7 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Criar(Usuario usuario)
         {
+            usuario.DataCriacao = DateTime.Now;
             _db.Usuario.Add(usuario);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

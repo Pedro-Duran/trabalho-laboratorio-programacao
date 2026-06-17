@@ -1,6 +1,3 @@
-// =====================================================
-// Controllers/AuthController.cs
-// =====================================================
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
@@ -31,14 +28,7 @@ namespace AgenticContextEngine.Controllers
                 .Include(u => u.PerfilAcesso)
                 .FirstOrDefaultAsync(u => u.Email == email && u.Ativo);
 
-            if (usuario == null)
-            {
-                ViewBag.Erro = "Email ou senha inválidos.";
-                return View();
-            }
-
-            // Verificação simples de senha (em produção usar hash)
-            if (usuario.SenhaHash != senha)
+            if (usuario == null || usuario.SenhaHash != senha)
             {
                 ViewBag.Erro = "Email ou senha inválidos.";
                 return View();
@@ -48,7 +38,6 @@ namespace AgenticContextEngine.Controllers
             HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
             HttpContext.Session.SetString("UsuarioPerfil", usuario.PerfilAcesso?.Nome ?? "");
 
-            // Log de auditoria
             _db.LogAuditoria.Add(new Models.LogAuditoria
             {
                 UsuarioId = usuario.Id,
@@ -62,6 +51,15 @@ namespace AgenticContextEngine.Controllers
             return RedirectToAction("Index", "Categorias");
         }
 
+        [HttpPost]
+        public IActionResult Convidado()
+        {
+            HttpContext.Session.SetString("UsuarioId", "0");
+            HttpContext.Session.SetString("UsuarioNome", "Convidado");
+            HttpContext.Session.SetString("UsuarioPerfil", "Convidado");
+            return RedirectToAction("Index", "Categorias");
+        }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -69,4 +67,3 @@ namespace AgenticContextEngine.Controllers
         }
     }
 }
-
