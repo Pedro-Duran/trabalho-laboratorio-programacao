@@ -92,35 +92,34 @@ AgenticContextEngine/
 git clone https://github.com/Pedro-Duran/trabalho-laboratorio-programacao.git
 cd trabalho-laboratorio-programacao
 ```
+ Suba o banco MySQL :
+ 
+  `docker compose up -d`
+  
+  Aguarde ficar saudável: `docker ps` deve mostrar agente_mysql como (healthy).
 
-**2. Crie o banco de dados:**
-- Abra o SSMS
-- Conecte ao SQL Server local
-- Abra o arquivo `banco_agentic.sql`
-- Execute com F5
+  2. Restaure os pacotes e rode a aplicação:
+  dotnet restore
+  dotnet run
 
-**3. Instale as dependências:**
-```bash
-dotnet restore
-```
+  3. Acesse no navegador:
+  http://localhost:5147/Auth/Login
 
-**4. Rode o projeto:**
-```bash
-dotnet run
-```
+  4. Credenciais de teste:
 
-**5. Acesse no navegador:**
-```
-http://localhost:5147/Auth/Login
-```
+  ┌───────────────────┬────────┐
+  │       Email       │ Senha  │
+  ├───────────────────┼────────┤
+  │ admin@sistema.com │ 123456 │
+  └───────────────────┴────────┘
 
-### Credenciais de Acesso
-| Email | Senha | Perfil |
-|---|---|---|
-| admin@sistema.com | 123456 | Administrador |
-| joao@sistema.com | 123456 | Operador |
+  5. Para testar:
+  - Faça login → deve redirecionar para /Categorias/Index.
+  - Navegue pelos CRUDs (Categorias, Agentes, Canais, Usuários) e cadastre algo — confirme que persiste reabrindo a tela.
+  - Acesse Simulação → selecione o agente/canal seed (SellerBot / Site Principal), envie mensagens e veja a resposta polimórfica do agente e o histórico persistido.
 
----
+  Para parar tudo depois:
+  docker compose down      # remove o container (mantém o volume mysql_data)
 
 ## Módulos Implementados
 
@@ -129,7 +128,7 @@ http://localhost:5147/Auth/Login
 - [x] CRUD de Agentes
 - [x] CRUD de Usuários
 - [x] CRUD de Canais
-- [ ] Interface de Chat/Simulação
+- [x] Interface de Chat/Simulação
 - [ ] Dashboard Estatístico
 
 ---
