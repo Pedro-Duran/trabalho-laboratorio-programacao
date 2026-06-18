@@ -3,6 +3,18 @@
     ViewData["Title"] = "Canais"; Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="content">
+    @if (TempData["Erro"] != null)
+    {
+        <div style="background: rgba(239,68,68,.12); border: 1px solid #ef4444; color: #fca5a5; padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 13px;">
+            @TempData["Erro"]
+        </div>
+    }
+    @if (TempData["Sucesso"] != null)
+    {
+        <div style="background: rgba(16,185,129,.12); border: 1px solid #10b981; color: #6ee7b7; padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 13px;">
+            @TempData["Sucesso"]
+        </div>
+    }
     <div class="page-header">
         <div><h1 class="page-title">Canais de Origem</h1><p class="page-sub">Gerencie os sites e canais conectados a plataforma</p></div>
         <a href="/Canais/Criar" class="tbtn"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>Novo Canal</a>
