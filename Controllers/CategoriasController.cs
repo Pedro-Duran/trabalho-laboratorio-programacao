@@ -73,8 +73,18 @@ namespace AgenticContextEngine.Controllers
             var categoria = await _db.CategoriaAgente.FindAsync(id);
             if (categoria != null)
             {
-                _db.CategoriaAgente.Remove(categoria);
-                await _db.SaveChangesAsync();
+                bool temAgentes = await _db.Agente.AnyAsync(a => a.CategoriaAgenteId == id);
+
+                if (temAgentes)
+                {
+                    TempData["Erro"] = "Nao foi possivel excluir esta categoria pois ela possui agentes vinculados.";
+                }
+                else
+                {
+                    _db.CategoriaAgente.Remove(categoria);
+                    await _db.SaveChangesAsync();
+                    TempData["Sucesso"] = "Categoria excluida com sucesso.";
+                }
             }
             return RedirectToAction("Index");
         }

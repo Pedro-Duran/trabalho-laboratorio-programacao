@@ -62,11 +62,23 @@ namespace AgenticContextEngine.Controllers
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
+
             var canal = await _db.CanalOrigem.FindAsync(id);
             if (canal != null)
             {
-                _db.CanalOrigem.Remove(canal);
-                await _db.SaveChangesAsync();
+                bool temSessoes = await _db.SessaoAtendimento.AnyAsync(s => s.CanalOrigemId == id);
+                bool temEstatisticas = await _db.EstatisticaAcesso.AnyAsync(e => e.CanalOrigemId == id);
+
+                if (temSessoes || temEstatisticas)
+                {
+                    TempData["Erro"] = "Nao foi possivel excluir este canal pois ele possui sessoes vinculadas.";
+                }
+                else
+                {
+                    _db.CanalOrigem.Remove(canal);
+                    await _db.SaveChangesAsync();
+                    TempData["Sucesso"] = "Canal excluido com sucesso.";
+                }
             }
             return RedirectToAction("Index");
         }

@@ -74,8 +74,20 @@ namespace AgenticContextEngine.Controllers
             var agente = await _db.Agente.FindAsync(id);
             if (agente != null)
             {
-                _db.Agente.Remove(agente);
-                await _db.SaveChangesAsync();
+                bool temSessoes = await _db.SessaoAtendimento.AnyAsync(s => s.AgenteId == id);
+                bool temEstatisticas = await _db.EstatisticaAcesso.AnyAsync(e => e.AgenteId == id);
+                bool temContexto = await _db.ContextoMemoria.AnyAsync(c => c.AgenteId == id);
+
+                if (temSessoes || temEstatisticas || temContexto)
+                {
+                    TempData["Erro"] = "Nao foi possivel excluir este agente pois ele possui historico vinculado.";
+                }
+                else
+                {
+                    _db.Agente.Remove(agente);
+                    await _db.SaveChangesAsync();
+                    TempData["Sucesso"] = "Agente excluido com sucesso.";
+                }
             }
             return RedirectToAction("Index");
         }
