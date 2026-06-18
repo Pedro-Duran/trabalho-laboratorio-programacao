@@ -36,7 +36,7 @@
             </div>
         </div>
         <table>
-            <thead><tr><th>#</th><th>Usuario</th><th>Email</th><th>Perfil</th><th>Status</th><th>Cadastrado</th><th>Acoes</th></tr></thead>
+            <thead><tr><th>#</th><th>Usuario</th><th>Email</th><th>Perfil</th><th>Status</th><th>Cadastrado</th><th>Ações</th></tr></thead>
             <tbody id="tbody-us">
                 @{
                     int i = 0;
@@ -71,8 +71,15 @@
                 </td>
                 <td class="td-muted">@u.DataCriacao.ToString("dd/MM/yyyy")</td>
                 <td>
+                    <template id="view-usuario-@u.Id">
+                        <div class="vrow"><span class="vlabel">Nome</span><span class="vvalue">@u.Nome</span></div>
+                        <div class="vrow"><span class="vlabel">Email</span><span class="vvalue">@u.Email</span></div>
+                        <div class="vrow"><span class="vlabel">Perfil</span><span class="vvalue">@(u.PerfilAcesso?.Nome ?? "-")</span></div>
+                        <div class="vrow"><span class="vlabel">Status</span><span class="vvalue">@(u.Ativo ? "Ativo" : "Inativo")</span></div>
+                        <div class="vrow"><span class="vlabel">Cadastrado em</span><span class="vvalue">@u.DataCriacao.ToString("dd/MM/yyyy HH:mm")</span></div>
+                    </template>
                     <div class="td-actions">
-                        <a href="#" class="act act-view" title="Visualizar"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></a>
+                        <a href="#" class="act act-view" title="Visualizar" onclick="abrirModalView('view-usuario-@u.Id','@u.Nome'); return false;"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></a>
                         @if (isAdmin)
                         {
                             <a href="/Usuarios/Editar/@u.Id" class="act act-edit" title="Editar"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></a>

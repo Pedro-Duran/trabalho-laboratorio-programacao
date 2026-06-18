@@ -145,6 +145,15 @@
         .fsave{padding:11px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;transition:all 0.2s}
         .fcancel{padding:11px 24px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
         .guest-banner{background:rgba(245,158,11,0.08);border-bottom:1px solid rgba(245,158,11,0.2);padding:8px 28px;font-size:12px;color:#f59e0b;display:flex;align-items:center;gap:8px}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center}
+        .modal-overlay.show{display:flex}
+        .modal-box{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:30px;max-width:480px;width:90%;text-align:left}
+        .modal-box h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+        .vrow{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+        .vrow:last-child{border-bottom:none}
+        .vlabel{color:var(--muted);font-weight:600;flex-shrink:0}
+        .vvalue{color:var(--text);text-align:right;word-break:break-word}
+        .modal-close{margin-top:20px;width:100%;padding:11px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer}
     </style>
 </head>
 <body>
@@ -209,7 +218,25 @@
     }
     @RenderBody()
 </main>
+<div class="modal-overlay" id="modalView">
+    <div class="modal-box">
+        <h3 id="modalViewTitulo">Detalhes</h3>
+        <div id="modalViewCorpo"></div>
+        <button type="button" class="modal-close" onclick="fecharModalView()">Fechar</button>
+    </div>
+</div>
 <script>
+function abrirModalView(templateId, titulo){
+    var tpl = document.getElementById(templateId);
+    if(!tpl) return;
+    document.getElementById('modalViewTitulo').textContent = titulo;
+    document.getElementById('modalViewCorpo').innerHTML = tpl.innerHTML;
+    document.getElementById('modalView').classList.add('show');
+}
+function fecharModalView(){
+    document.getElementById('modalView').classList.remove('show');
+}
+document.getElementById('modalView').addEventListener('click', function(e){ if(e.target === this) fecharModalView(); });
 function u(){var n=new Date();var el=document.getElementById("clock");if(el)el.textContent=n.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"})+" \u2022 "+n.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
 u();setInterval(u,1000);
 function filtrar(v,id){document.querySelectorAll("#"+id+" tr").forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v.toLowerCase())?"":"none"})}
