@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
 using AgenticContextEngine.Models;
+using AgenticContextEngine.Services;
 
 namespace AgenticContextEngine.Controllers
 {
@@ -34,6 +35,12 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem criar usuarios.";
+                return RedirectToAction("Index");
+            }
+
             ViewBag.Perfis = await _db.PerfilAcesso.ToListAsync();
             return View();
         }
@@ -41,6 +48,12 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Criar(Usuario usuario)
         {
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem criar usuarios.";
+                return RedirectToAction("Index");
+            }
+
             usuario.DataCriacao = DateTime.Now;
             _db.Usuario.Add(usuario);
             await _db.SaveChangesAsync();
@@ -52,6 +65,12 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem editar usuarios.";
+                return RedirectToAction("Index");
+            }
+
             var usuario = await _db.Usuario.FindAsync(id);
             if (usuario == null) return NotFound();
             ViewBag.Perfis = await _db.PerfilAcesso.ToListAsync();
@@ -61,6 +80,12 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Usuario usuario)
         {
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem editar usuarios.";
+                return RedirectToAction("Index");
+            }
+
             _db.Usuario.Update(usuario);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -70,6 +95,12 @@ namespace AgenticContextEngine.Controllers
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
+
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem excluir usuarios.";
+                return RedirectToAction("Index");
+            }
 
             var usuario = await _db.Usuario.FindAsync(id);
             if (usuario != null)

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
 using AgenticContextEngine.Models;
+using AgenticContextEngine.Services;
 
 namespace AgenticContextEngine.Controllers
 {
@@ -29,6 +30,13 @@ namespace AgenticContextEngine.Controllers
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
+
+            if (!AuthHelper.PodeCriar(HttpContext))
+            {
+                TempData["Erro"] = "Convidados nao podem criar categorias.";
+                return RedirectToAction("Index");
+            }
+
             return View();
         }
 
@@ -39,6 +47,13 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
+            if (!AuthHelper.PodeCriar(HttpContext))
+            {
+                TempData["Erro"] = "Convidados nao podem criar categorias.";
+                return RedirectToAction("Index");
+            }
+
+            categoria.CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext);
             _db.CategoriaAgente.Add(categoria);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -52,6 +67,13 @@ namespace AgenticContextEngine.Controllers
 
             var categoria = await _db.CategoriaAgente.FindAsync(id);
             if (categoria == null) return NotFound();
+
+            if (!AuthHelper.PodeGerenciar(HttpContext, categoria.CriadoPorUsuarioId))
+            {
+                TempData["Erro"] = "Voce so pode editar categorias criadas por voce.";
+                return RedirectToAction("Index");
+            }
+
             return View(categoria);
         }
 
@@ -59,7 +81,22 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(CategoriaAgente categoria)
         {
-            _db.CategoriaAgente.Update(categoria);
+            if (HttpContext.Session.GetString("UsuarioId") == null)
+                return RedirectToAction("Login", "Auth");
+
+            var existente = await _db.CategoriaAgente.FindAsync(categoria.Id);
+            if (existente == null) return NotFound();
+
+            if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
+            {
+                TempData["Erro"] = "Voce so pode editar categorias criadas por voce.";
+                return RedirectToAction("Index");
+            }
+
+            existente.Nome = categoria.Nome;
+            existente.Descricao = categoria.Descricao;
+            existente.Ativo = categoria.Ativo;
+
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
@@ -73,6 +110,12 @@ namespace AgenticContextEngine.Controllers
             var categoria = await _db.CategoriaAgente.FindAsync(id);
             if (categoria != null)
             {
+                if (!AuthHelper.PodeGerenciar(HttpContext, categoria.CriadoPorUsuarioId))
+                {
+                    TempData["Erro"] = "Voce so pode excluir categorias criadas por voce.";
+                    return RedirectToAction("Index");
+                }
+
                 bool temAgentes = await _db.Agente.AnyAsync(a => a.CategoriaAgenteId == id);
 
                 if (temAgentes)

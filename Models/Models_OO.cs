@@ -68,6 +68,8 @@ namespace AgenticContextEngine.Models
         public string? Descricao { get; set; }
         public bool Ativo { get; set; } = true;
         public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public int? CriadoPorUsuarioId { get; set; }
+        public Usuario? CriadoPor { get; set; }
         public ICollection<Agente> Agentes { get; set; } = new List<Agente>();
     }
 
@@ -80,6 +82,8 @@ namespace AgenticContextEngine.Models
         public string? Instrucoes { get; set; }
         public bool Ativo { get; set; } = true;
         public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public int? CriadoPorUsuarioId { get; set; }
+        public Usuario? CriadoPor { get; set; }
         public CategoriaAgente? CategoriaAgente { get; set; }
     }
 
@@ -91,6 +95,8 @@ namespace AgenticContextEngine.Models
         public string? Descricao { get; set; }
         public bool Ativo { get; set; } = true;
         public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public int? CriadoPorUsuarioId { get; set; }
+        public Usuario? CriadoPor { get; set; }
     }
 
     public class SessaoAtendimento

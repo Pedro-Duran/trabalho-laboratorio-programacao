@@ -111,7 +111,13 @@ using (var scope = app.Services.CreateScope())
             Ativo = true
         };
 
-        context.PerfilAcesso.Add(perfilAdmin);
+        var perfilRegular = new PerfilAcesso
+        {
+            Nome = "Regular",
+            Ativo = true
+        };
+
+        context.PerfilAcesso.AddRange(perfilAdmin, perfilRegular);
         context.SaveChanges();
 
         context.Usuario.Add(new Usuario
@@ -120,6 +126,15 @@ using (var scope = app.Services.CreateScope())
             Email = "admin@sistema.com",
             SenhaHash = "123456",
             PerfilAcessoId = perfilAdmin.Id,
+            Ativo = true
+        });
+
+        context.Usuario.Add(new Usuario
+        {
+            Nome = "Usuario Regular",
+            Email = "regular@sistema.com",
+            SenhaHash = "123456",
+            PerfilAcessoId = perfilRegular.Id,
             Ativo = true
         });
 
@@ -132,22 +147,27 @@ using (var scope = app.Services.CreateScope())
 
     if (!context.CategoriaAgente.Any())
     {
+        var adminId = context.Usuario.First(u => u.Email == "admin@sistema.com").Id;
+
         var vendas = new CategoriaAgente
         {
             Nome = "Vendas",
-            Ativo = true
+            Ativo = true,
+            CriadoPorUsuarioId = adminId
         };
 
         var suporte = new CategoriaAgente
         {
             Nome = "Suporte Tecnico",
-            Ativo = true
+            Ativo = true,
+            CriadoPorUsuarioId = adminId
         };
 
         var financeiro = new CategoriaAgente
         {
             Nome = "Financeiro",
-            Ativo = true
+            Ativo = true,
+            CriadoPorUsuarioId = adminId
         };
 
         context.CategoriaAgente.AddRange(
@@ -164,6 +184,8 @@ using (var scope = app.Services.CreateScope())
 
     if (!context.Agente.Any())
     {
+        var adminId = context.Usuario.First(u => u.Email == "admin@sistema.com").Id;
+
         var vendasId = context.CategoriaAgente
             .First(x => x.Nome == "Vendas").Id;
 
@@ -180,7 +202,8 @@ using (var scope = app.Services.CreateScope())
                 Nome = "SellerBot",
                 CategoriaAgenteId = vendasId,
                 Descricao = "Agente especializado em vendas",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             },
 
             new Agente
@@ -188,7 +211,8 @@ using (var scope = app.Services.CreateScope())
                 Nome = "SupportBot",
                 CategoriaAgenteId = suporteId,
                 Descricao = "Agente especializado em suporte",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             },
 
             new Agente
@@ -196,7 +220,8 @@ using (var scope = app.Services.CreateScope())
                 Nome = "FinanceBot",
                 CategoriaAgenteId = financeiroId,
                 Descricao = "Agente especializado em finanças",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             }
         );
 
@@ -209,27 +234,32 @@ using (var scope = app.Services.CreateScope())
 
     if (!context.CanalOrigem.Any())
     {
+        var adminId = context.Usuario.First(u => u.Email == "admin@sistema.com").Id;
+
         context.CanalOrigem.AddRange(
 
             new CanalOrigem
             {
                 Nome = "Site Principal",
                 UrlSite = "https://siteprincipal.local",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             },
 
             new CanalOrigem
             {
                 Nome = "App Mobile",
                 UrlSite = "https://appmobile.local",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             },
 
             new CanalOrigem
             {
                 Nome = "Loja Virtual",
                 UrlSite = "https://lojavirtual.local",
-                Ativo = true
+                Ativo = true,
+                CriadoPorUsuarioId = adminId
             }
         );
 

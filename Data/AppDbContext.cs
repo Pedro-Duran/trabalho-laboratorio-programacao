@@ -38,6 +38,30 @@ namespace AgenticContextEngine.Data
                 .WithMany(c => c.Agentes)
                 .HasForeignKey(a => a.CategoriaAgenteId);
 
+            // CategoriaAgente -> Usuario (criador, opcional)
+            modelBuilder.Entity<CategoriaAgente>()
+                .HasOne(c => c.CriadoPor)
+                .WithMany()
+                .HasForeignKey(c => c.CriadoPorUsuarioId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Agente -> Usuario (criador, opcional)
+            modelBuilder.Entity<Agente>()
+                .HasOne(a => a.CriadoPor)
+                .WithMany()
+                .HasForeignKey(a => a.CriadoPorUsuarioId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // CanalOrigem -> Usuario (criador, opcional)
+            modelBuilder.Entity<CanalOrigem>()
+                .HasOne(c => c.CriadoPor)
+                .WithMany()
+                .HasForeignKey(c => c.CriadoPorUsuarioId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // SessaoAtendimento -> Agente
             modelBuilder.Entity<SessaoAtendimento>()
                 .HasOne(s => s.Agente)
