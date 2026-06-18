@@ -1,21 +1,48 @@
-@model AgenticContextEngine.Models.ChatSessaoViewModel
+﻿@model AgenticContextEngine.Models.ChatSessaoViewModel
 @{
     ViewData["Title"] = "Simulação em Execução";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime dataInicio = ViewBag.DataInicio;
 }
 
 <style>
     .chat-container { display: flex; flex-direction: column; height: calc(100vh - 160px); background: #0c0f1a; border: 1px solid #1e2d42; border-radius: 14px; overflow: hidden; }
     .chat-header { padding: 16px 24px; background: #111827; border-bottom: 1px solid #1e2d42; display: flex; align-items: center; justify-content: space-between; }
     .agent-info { display: flex; align-items: center; gap: 12px; }
-    .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: #07090f; }
-    .msg-box { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 13.5px; line-height: 1.5; word-break: break-word; }
-    .msg-user { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .msg-agent { background: #1a2235; color: #f0f4ff; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #1e2d42; }
-    .msg-meta { font-size: 10px; margin-top: 4px; display: block; opacity: 0.6; text-align: right; }
-    .msg-agent .msg-meta { text-align: left; color: #8b5cf6; }
+    .agent-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-weight:700; color:white; font-size:15px; flex-shrink:0; position:relative; }
+    .agent-avatar::after { content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; background:#10b981; border-radius:50%; border:2px solid #111827; }
+    .session-time { font-size:11px; color:#6b7a99; display:flex; align-items:center; gap:5px; margin-top:2px; }
+    .session-time svg { width:12px; height:12px; stroke:#6b7a99; fill:none; stroke-width:2; }
+    .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; background: #07090f; scroll-behavior: smooth; }
+    .msg-row { display: flex; gap: 10px; align-items: flex-end; max-width: 78%; opacity:0; animation: fadeIn .3s forwards; }
+    @@keyframes fadeIn { to { opacity:1; transform: translateY(0); } from { transform: translateY(6px); } }
+    .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-row.agent { align-self: flex-start; }
+    .msg-avatar { width: 30px; height: 30px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:white; flex-shrink:0; }
+    .msg-avatar.user { background: linear-gradient(135deg,#4f46e5,#6366f1); }
+    .msg-avatar.agent { background: linear-gradient(135deg,#8b5cf6,#a78bfa); }
+    .msg-box { padding: 12px 16px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; word-break: break-word; }
+    .msg-user .msg-box { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+    .msg-agent .msg-box { background: #1a2235; color: #f0f4ff; border-bottom-left-radius: 4px; border: 1px solid #2a3852; }
+    .msg-name { font-size: 11px; font-weight: 700; margin-bottom: 3px; opacity: 0.75; display:block; }
+    .msg-row.user .msg-name { text-align: right; color: #c7d2fe; }
+    .msg-row.agent .msg-name { color: #a78bfa; }
+    .msg-meta { font-size: 10px; margin-top: 5px; display: block; opacity: 0.55; }
+    .msg-row.user .msg-meta { text-align: right; }
+    .empty-chat { text-align: center; color: #6b7a99; margin: auto; font-style: italic; font-size: 13px; max-width:320px; }
+    .empty-chat svg { width:40px; height:40px; stroke:#3a4a6b; margin-bottom:12px; }
+    .typing-row { display:flex; gap:10px; align-items:flex-end; max-width:78%; align-self:flex-start; }
+    .typing { display:flex; gap:4px; padding: 14px 16px; background:#1a2235; border:1px solid #2a3852; border-radius:14px; border-bottom-left-radius:4px; }
+    .typing span { width:6px; height:6px; border-radius:50%; background:#8b5cf6; animation: blink 1.2s infinite; }
+    .typing span:nth-child(2){animation-delay:.2s} .typing span:nth-child(3){animation-delay:.4s}
+    @@keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
     .chat-footer { padding: 16px 24px; background: #111827; border-top: 1px solid #1e2d42; }
     .chat-form { display: flex; gap: 12px; }
+    .chat-form .finput { flex:1; }
+    .send-btn { display:flex; align-items:center; gap:6px; }
+    .send-btn svg { width:15px; height:15px; fill:none; stroke:white; stroke-width:2; transition: transform .15s; }
+    .send-btn:active svg { transform: translateX(2px); }
+    .send-btn:disabled { opacity:.6; cursor:not-allowed; }
 </style>
 
 <div class="content">
@@ -24,16 +51,22 @@
             <h1 class="page-title">Execução Contextual Ativa</h1>
             <p class="page-sub">Retomando histórico persistido para o Agente selecionado.</p>
         </div>
-        <a href="/Simulacao/Index" class="fcancel" style="padding: 9px 16px;">← Mudar Canal/Agente</a>
+        <a href="/Simulacao/Index" class="fcancel" style="padding: 9px 16px;">&larr; Mudar Canal/Agente</a>
     </div>
 
     <div class="chat-container">
         <div class="chat-header">
             <div class="agent-info">
-                <div class="td-icon ti-purple"><svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18"/></svg></div>
+                <div class="agent-avatar">@Model.NomeAgente.Substring(0,1).ToUpper()</div>
                 <div>
-                    <strong style="color: #f0f4ff; font-size: 15px;">@Model.NomeAgente</strong>
-                    <span class="badge b-purple" style="margin-left: 8px;">@Model.CategoriaAgente</span>
+                    <div>
+                        <strong style="color: #f0f4ff; font-size: 15px;">@Model.NomeAgente</strong>
+                        <span class="badge b-purple" style="margin-left: 8px;">@Model.CategoriaAgente</span>
+                    </div>
+                    <div class="session-time">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span id="sessionTimer" data-inicio="@dataInicio.ToString("yyyy-MM-ddTHH:mm:ss")">Execução Contextual Ativa</span>
+                    </div>
                 </div>
             </div>
             <div>
@@ -44,8 +77,9 @@
         <div class="chat-messages" id="chatMessages">
             @if (!Model.Mensagens.Any())
             {
-                <div style="text-align: center; color: #6b7a99; margin-top: 40px; font-style: italic;">
-                    Nenhum histórico prévio neste canal. Envie uma mensagem para iniciar a gravação do contexto!
+                <div class="empty-chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <div>Nenhum histórico prévio neste canal.<br/>Envie uma mensagem para iniciar a gravação do contexto!</div>
                 </div>
             }
             else
@@ -53,27 +87,148 @@
                 @foreach (var msg in Model.Mensagens)
                 {
                     bool isUser = msg.Remetente == "Usuário";
-                    <div class="msg-box @(isUser ? "msg-user" : "msg-agent")">
-                        <strong>@(isUser ? "Você" : msg.Remetente):</strong>
-                        <p style="margin-top: 4px;">@msg.Conteudo</p>
-                        <span class="msg-meta">@msg.DataEnvio.ToString("dd/MM HH:mm")</span>
+                    <div class="msg-row @(isUser ? "user" : "agent")">
+                        <div class="msg-avatar @(isUser ? "user" : "agent")">@(isUser ? "V" : msg.Remetente.Substring(0,1).ToUpper())</div>
+                        <div class="msg-box">
+                            <span class="msg-name">@(isUser ? "Vocé" : msg.Remetente)</span>
+                            @msg.Conteudo
+                            <span class="msg-meta">@msg.DataEnvio.ToString("dd/MM HH:mm")</span>
+                        </div>
                     </div>
                 }
             }
         </div>
 
         <div class="chat-footer">
-            <form method="post" action="/Simulacao/EnviarMensagem" class="chat-form">
-                <input type="hidden" name="sessaoId" value="@Model.SessaoId" />
-                <input type="text" name="conteudo" class="finput" placeholder="Digite uma mensagem (ex: testar palavras 'preço', 'erro', 'fatura')..." autocomplete="off" required />
-                <button type="submit" class="tbtn" style="padding: 0 24px;">Enviar</button>
+            <form method="post" action="/Simulacao/EnviarMensagem" class="chat-form" id="chatForm">
+                <input type="hidden" name="sessaoId" id="sessaoId" value="@Model.SessaoId" />
+                <input type="text" name="conteudo" id="campoMensagem" class="finput" placeholder="Digite uma mensagem (ex: testar palavras 'preço', 'erro', 'fatura')..." autocomplete="off" required autofocus />
+                <button type="submit" class="tbtn send-btn" id="btnEnviar">
+                    Enviar
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Mantém o scroll do chat sempre no final das mensagens ao carregar
-    var objDiv = document.getElementById("chatMessages");
-    if(objDiv) { objDiv.scrollTop = objDiv.scrollHeight; }
+(function() {
+    var chatMessages = document.getElementById("chatMessages");
+    var chatForm = document.getElementById("chatForm");
+    var campoMensagem = document.getElementById("campoMensagem");
+    var btnEnviar = document.getElementById("btnEnviar");
+    var nomeAgente = "@Model.NomeAgente";
+    var inicialAgente = nomeAgente.charAt(0).toUpperCase();
+
+    function rolarParaFinal() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    rolarParaFinal();
+
+    function escapeHtml(texto) {
+        var div = document.createElement("div");
+        div.innerText = texto;
+        return div.innerHTML;
+    }
+
+    function criarBolha(remetente, conteudo, dataEnvio, isUser) {
+        var row = document.createElement("div");
+        row.className = "msg-row " + (isUser ? "user" : "agent");
+        var inicial = isUser ? "V" : remetente.charAt(0).toUpperCase();
+        row.innerHTML =
+            '<div class="msg-avatar ' + (isUser ? "user" : "agent") + '">' + inicial + '</div>' +
+            '<div class="msg-box">' +
+                '<span class="msg-name">' + (isUser ? "Vocé" : escapeHtml(remetente)) + '</span>' +
+                escapeHtml(conteudo) +
+                '<span class="msg-meta">' + dataEnvio + '</span>' +
+            '</div>';
+        return row;
+    }
+
+    function mostrarDigitando() {
+        var row = document.createElement("div");
+        row.className = "typing-row";
+        row.id = "typingIndicator";
+        row.innerHTML =
+            '<div class="msg-avatar agent">' + inicialAgente + '</div>' +
+            '<div class="typing"><span></span><span></span><span></span></div>';
+        chatMessages.appendChild(row);
+        rolarParaFinal();
+    }
+
+    function removerVazio() {
+        var vazio = chatMessages.querySelector(".empty-chat");
+        if (vazio) vazio.remove();
+    }
+
+    chatForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        var texto = campoMensagem.value.trim();
+        if (!texto) return;
+
+        removerVazio();
+
+        var agora = new Date();
+        var horaFormatada = agora.toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}) + " " +
+                             agora.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"});
+        var bolhaUsuario = criarBolha("Vocé", texto, horaFormatada, true);
+        chatMessages.appendChild(bolhaUsuario);
+        rolarParaFinal();
+
+        campoMensagem.value = "";
+        btnEnviar.disabled = true;
+
+        setTimeout(mostrarDigitando, 200);
+
+        var formData = new FormData();
+        formData.append("sessaoId", document.getElementById("sessaoId").value);
+        formData.append("conteudo", texto);
+
+        fetch("/Simulacao/EnviarMensagem", {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            body: formData
+        })
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            setTimeout(function() {
+                var typingEl = document.getElementById("typingIndicator");
+                if (typingEl) typingEl.remove();
+
+                var bolhaAgente = criarBolha(data.agente.nome, data.agente.conteudo, data.agente.dataEnvio, false);
+                chatMessages.appendChild(bolhaAgente);
+                rolarParaFinal();
+                btnEnviar.disabled = false;
+                campoMensagem.focus();
+            }, 900);
+        })
+        .catch(function(err) {
+            var typingEl = document.getElementById("typingIndicator");
+            if (typingEl) typingEl.remove();
+            alert("Erro ao enviar mensagem. Tente novamente.");
+            btnEnviar.disabled = false;
+        });
+    });
+
+    var timerEl = document.getElementById("sessionTimer");
+    if (timerEl) {
+        var inicio = new Date(timerEl.getAttribute("data-inicio"));
+        function atualizarTimer() {
+            var diffMs = new Date() - inicio;
+            var diffMin = Math.floor(diffMs / 60000);
+            var texto;
+            if (diffMin < 1) texto = "Sessão iniciada agora mesmo";
+            else if (diffMin === 1) texto = "Sessão ativa hã 1 minuto";
+            else if (diffMin < 60) texto = "Sessão ativa hã " + diffMin + " minutos";
+            else {
+                var horas = Math.floor(diffMin / 60);
+                texto = "Sessão ativa hã " + horas + (horas === 1 ? " hora" : " horas");
+            }
+            timerEl.textContent = texto;
+        }
+        atualizarTimer();
+        setInterval(atualizarTimer, 30000);
+    }
+})();
 </script>

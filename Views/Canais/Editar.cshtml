@@ -1,5 +1,5 @@
 ﻿@model AgenticContextEngine.Models.CanalOrigem
-@{ Layout = null; }
+@{ ViewData["Title"] = "Editar Canal"; Layout = null; }
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,7 +12,9 @@
         h2 { font-size: 20px; margin-bottom: 28px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
-        input, textarea { width: 100%; background: #0f1117; border: 1px solid #2a2d3d; border-radius: 8px; padding: 12px 16px; color: #f1f5f9; font-size: 15px; outline: none; }
+        input, textarea, select { width: 100%; background: #0f1117; border: 1px solid #2a2d3d; border-radius: 8px; padding: 12px 16px; color: #f1f5f9; font-size: 15px; outline: none; font-family: inherit; }
+        input:focus, textarea:focus, select:focus { border-color: #6366f1; }
+        select option { background: #0f1117; color: #f1f5f9; }
         .btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 8px; padding: 12px 24px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
         .link { display: block; text-align: center; margin-top: 16px; color: #6366f1; text-decoration: none; font-size: 14px; }
     </style>
@@ -24,22 +26,26 @@
             <input type="hidden" name="Id" value="@Model.Id" />
             <div class="form-group">
                 <label>Nome</label>
-                <input type="text" name="Nome" asp-for="Nome" />
+                <input type="text" name="Nome" value="@Model.Nome" required />
             </div>
             <div class="form-group">
-                <label>URL</label>
-                <input type="text" name="UrlSite" asp-for="UrlSite" />
+                <label>URL do Site</label>
+                <input type="text" name="UrlSite" value="@Model.UrlSite" />
             </div>
             <div class="form-group">
-                <label>Descricao</label>
-                <textarea name="Descricao" rows="3" asp-for="Descricao"></textarea>
+                <label>Descrição</label>
+                <textarea name="Descricao" rows="3">@Model.Descricao</textarea>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="Ativo">
+                    <option value="true" selected="@Model.Ativo">Ativo</option>
+                    <option value="false" selected="@(!Model.Ativo)">Inativo</option>
+                </select>
             </div>
             <button type="submit" class="btn">Salvar</button>
         </form>
-        <a href="/Canais/Index" class="link">Voltar</a>
+        <a href="/Canais/Index" class="link">&larr; Voltar</a>
     </div>
 </body>
 </html>
-
-
-
