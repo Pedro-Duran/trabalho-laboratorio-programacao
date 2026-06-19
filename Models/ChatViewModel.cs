@@ -1,6 +1,4 @@
-// =====================================================
-// Models/ChatViewModel.cs
-// =====================================================
+
 using System.Collections.Generic;
 using AgenticContextEngine.Models;
 

@@ -4,9 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using AgenticContextEngine.Core.Interfaces;
 
-// =====================================================
-// INTERFACES
-// =====================================================
+
 namespace AgenticContextEngine.Core.Interfaces
 {
     public interface IAgente
@@ -33,9 +31,7 @@ namespace AgenticContextEngine.Core.Interfaces
     }
 }
 
-// =====================================================
-// MODELS
-// =====================================================
+
 namespace AgenticContextEngine.Models
 {
     public class PerfilAcesso
@@ -162,9 +158,7 @@ namespace AgenticContextEngine.Models
     }
 }
 
-// =====================================================
-// CAMADA DE NEGOCIO
-// =====================================================
+
 namespace AgenticContextEngine.Business
 {
     using AgenticContextEngine.Core.Interfaces;
@@ -175,7 +169,7 @@ namespace AgenticContextEngine.Business
         public string Nome { get; set; } = string.Empty;
         public string? Instrucoes { get; set; }
 
-        // Remove acentos para comparacoes de texto mais robustas (ex: "preco" == "preÃ§o")
+       
         protected static string RemoverAcentos(string texto)
         {
             var textoNormalizado = texto.Normalize(NormalizationForm.FormD);
@@ -189,8 +183,7 @@ namespace AgenticContextEngine.Business
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
 
-        // Compara ignorando acentuacao dos dois lados, entao "preço" e "preco" sao equivalentes
-        // tanto na palavra-chave escrita no codigo quanto na mensagem digitada pelo usuario.
+       
         protected static bool ContemPalavra(string mensagemNormalizada, params string[] palavras)
         {
             foreach (var palavra in palavras)

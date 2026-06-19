@@ -2,15 +2,14 @@ using System;
 
 namespace AgenticContextEngine.Models
 {
-    // Opcao generica usada em <select> de formularios (ex: perfis, categorias),
-    // para nao precisar passar a entidade completa so para listar Id/Nome.
+  
     public class OpcaoSelecaoDto
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
     }
 
-    // ===== Usuario =====
+    
 
     public class UsuarioCreateDto
     {
@@ -28,14 +27,13 @@ namespace AgenticContextEngine.Models
         public int PerfilAcessoId { get; set; }
         public bool Ativo { get; set; } = true;
 
-        // Preenchido apenas quando o usuario quer trocar a senha; vazio = mantem a atual.
+        
         public string? NovaSenha { get; set; }
 
-        // Confirmacao obrigatoria da senha atual da conta sendo editada quando ha troca de senha.
+        
         public string? SenhaAtual { get; set; }
     }
 
-    // ===== Agente =====
 
     public class AgenteListItemDto
     {
@@ -59,7 +57,7 @@ namespace AgenticContextEngine.Models
         public bool Ativo { get; set; } = true;
     }
 
-    // ===== Canal =====
+
 
     public class CanalListItemDto
     {
@@ -81,7 +79,7 @@ namespace AgenticContextEngine.Models
         public bool Ativo { get; set; } = true;
     }
 
-    // ===== Categoria =====
+
 
     public class CategoriaListItemDto
     {
@@ -101,7 +99,7 @@ namespace AgenticContextEngine.Models
         public bool Ativo { get; set; } = true;
     }
 
-    // ===== Simulacao / Chat =====
+
 
     public class AgenteOpcaoDto
     {

@@ -1,6 +1,4 @@
-﻿// =====================================================
-// Controllers/SimulacaoController.cs
-// =====================================================
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;

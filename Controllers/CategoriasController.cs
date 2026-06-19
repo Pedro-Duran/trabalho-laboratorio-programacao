@@ -15,7 +15,7 @@ namespace AgenticContextEngine.Controllers
             _db = db;
         }
 
-        // LIST
+        
         public async Task<IActionResult> Index()
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
@@ -35,7 +35,7 @@ namespace AgenticContextEngine.Controllers
             return View(categorias);
         }
 
-        // CREATE GET
+        
         public IActionResult Criar()
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
@@ -50,7 +50,7 @@ namespace AgenticContextEngine.Controllers
             return View();
         }
 
-        // CREATE POST
+       
         [HttpPost]
         public async Task<IActionResult> Criar(CategoriaFormDto dto)
         {
@@ -75,7 +75,7 @@ namespace AgenticContextEngine.Controllers
             return RedirectToAction("Index");
         }
 
-        // EDIT GET
+        
         public async Task<IActionResult> Editar(int id)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
@@ -100,7 +100,6 @@ namespace AgenticContextEngine.Controllers
             return View(dto);
         }
 
-        // EDIT POST
         [HttpPost]
         public async Task<IActionResult> Editar(CategoriaFormDto dto)
         {
@@ -124,7 +123,7 @@ namespace AgenticContextEngine.Controllers
             return RedirectToAction("Index");
         }
 
-        // DELETE
+        
         public async Task<IActionResult> Excluir(int id)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
