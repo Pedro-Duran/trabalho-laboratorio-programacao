@@ -192,7 +192,7 @@
     <div class="tb-spacer"></div>
     <div class="tb-time" id="clock"></div>
     <div class="tb-actions">
-        <div class="tb-icon"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="tb-notif">3</span></div>
+        <div class="tb-icon" id="notifIcon" onclick="abrirModalNotif()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="tb-notif" id="notifBadge">1</span></div>
         <div class="tb-user">
             <div class="tb-uavatar @(isConvidado ? "guest" : "")">@inicial</div>
             <div>
@@ -218,6 +218,13 @@
         <button type="button" class="modal-close" onclick="fecharModalView()">Fechar</button>
     </div>
 </div>
+<div class="modal-overlay" id="modalNotif">
+    <div class="modal-box">
+        <h3>Notificações</h3>
+        <div>O agente Fabrinio identificou a nota máxima nos seus agentes.</div>
+        <button type="button" class="modal-close" onclick="fecharModalNotif()">Fechar</button>
+    </div>
+</div>
 <script>
 function abrirModalView(templateId, titulo){
     var tpl = document.getElementById(templateId);
@@ -230,6 +237,15 @@ function fecharModalView(){
     document.getElementById('modalView').classList.remove('show');
 }
 document.getElementById('modalView').addEventListener('click', function(e){ if(e.target === this) fecharModalView(); });
+function abrirModalNotif(){
+    document.getElementById('modalNotif').classList.add('show');
+    var badge = document.getElementById('notifBadge');
+    if (badge) badge.remove();
+}
+function fecharModalNotif(){
+    document.getElementById('modalNotif').classList.remove('show');
+}
+document.getElementById('modalNotif').addEventListener('click', function(e){ if(e.target === this) fecharModalNotif(); });
 function u(){var n=new Date();var el=document.getElementById("clock");if(el)el.textContent=n.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"})+" \u2022 "+n.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
 u();setInterval(u,1000);
 function filtrar(v,id){document.querySelectorAll("#"+id+" tr").forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v.toLowerCase())?"":"none"})}
