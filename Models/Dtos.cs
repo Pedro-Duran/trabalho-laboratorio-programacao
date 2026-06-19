@@ -129,4 +129,44 @@ namespace AgenticContextEngine.Models
         public string NomeCanal { get; set; } = string.Empty;
         public DateTime DataInicio { get; set; }
     }
+
+    public class EnviarMensagemResultDto
+    {
+        public int AgenteId { get; set; }
+        public int CanalOrigemId { get; set; }
+        public string ConteudoUsuario { get; set; } = string.Empty;
+        public string DataEnvioUsuario { get; set; } = string.Empty;
+        public string NomeAgente { get; set; } = string.Empty;
+        public string ConteudoAgente { get; set; } = string.Empty;
+        public string DataEnvioAgente { get; set; } = string.Empty;
+    }
+
+    // ===== Resultados agregados de listagem (Index) =====
+
+    public class UsuariosIndexDto
+    {
+        public List<UsuarioListItemDto> Usuarios { get; set; } = new();
+        public int TotalAdmins { get; set; }
+        public int TotalPerfis { get; set; }
+    }
+
+    public class AgentesIndexDto
+    {
+        public List<AgenteListItemDto> Agentes { get; set; } = new();
+        public int TotalMensagens { get; set; }
+        public int TotalMemorias { get; set; }
+    }
+
+    public class CanaisIndexDto
+    {
+        public List<CanalListItemDto> Canais { get; set; } = new();
+        public int TotalSessoes { get; set; }
+    }
+
+    public class UsuarioLoginDto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Perfil { get; set; } = string.Empty;
+    }
 }

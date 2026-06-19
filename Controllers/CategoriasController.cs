@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AgenticContextEngine.Data;
 using AgenticContextEngine.Models;
 using AgenticContextEngine.Services;
 
@@ -8,34 +6,22 @@ namespace AgenticContextEngine.Controllers
 {
     public class CategoriasController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly ICategoriaService _service;
 
-        public CategoriasController(AppDbContext db)
+        public CategoriasController(ICategoriaService service)
         {
-            _db = db;
+            _service = service;
         }
 
-        
         public async Task<IActionResult> Index()
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var categorias = await _db.CategoriaAgente
-                .Select(c => new CategoriaListItemDto
-                {
-                    Id = c.Id,
-                    Nome = c.Nome,
-                    Descricao = c.Descricao,
-                    Ativo = c.Ativo,
-                    DataCriacao = c.DataCriacao,
-                    CriadoPorUsuarioId = c.CriadoPorUsuarioId
-                })
-                .ToListAsync();
+            var categorias = await _service.ListarAsync();
             return View(categorias);
         }
 
-        
         public IActionResult Criar()
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
@@ -50,7 +36,6 @@ namespace AgenticContextEngine.Controllers
             return View();
         }
 
-       
         [HttpPost]
         public async Task<IActionResult> Criar(CategoriaFormDto dto)
         {
@@ -63,41 +48,23 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var categoria = new CategoriaAgente
-            {
-                Nome = dto.Nome,
-                Descricao = dto.Descricao,
-                Ativo = dto.Ativo,
-                CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext)
-            };
-            _db.CategoriaAgente.Add(categoria);
-            await _db.SaveChangesAsync();
+            await _service.CriarAsync(dto, AuthHelper.GetUsuarioId(HttpContext));
             return RedirectToAction("Index");
         }
 
-        
         public async Task<IActionResult> Editar(int id)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var categoria = await _db.CategoriaAgente.FindAsync(id);
-            if (categoria == null) return NotFound();
-
-            if (!AuthHelper.PodeGerenciar(HttpContext, categoria.CriadoPorUsuarioId))
+            var resultado = await _service.ObterParaEdicaoAsync(id, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso || resultado.Dados == null)
             {
-                TempData["Erro"] = "Voce so pode editar categorias criadas por voce.";
+                TempData["Erro"] = resultado.Erro;
                 return RedirectToAction("Index");
             }
 
-            var dto = new CategoriaFormDto
-            {
-                Id = categoria.Id,
-                Nome = categoria.Nome,
-                Descricao = categoria.Descricao,
-                Ativo = categoria.Ativo
-            };
-            return View(dto);
+            return View(resultado.Dados);
         }
 
         [HttpPost]
@@ -106,51 +73,24 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existente = await _db.CategoriaAgente.FindAsync(dto.Id);
-            if (existente == null) return NotFound();
+            var resultado = await _service.EditarAsync(dto, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso)
+                TempData["Erro"] = resultado.Erro;
 
-            if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
-            {
-                TempData["Erro"] = "Voce so pode editar categorias criadas por voce.";
-                return RedirectToAction("Index");
-            }
-
-            existente.Nome = dto.Nome;
-            existente.Descricao = dto.Descricao;
-            existente.Ativo = dto.Ativo;
-
-            await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
-        
         public async Task<IActionResult> Excluir(int id)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var categoria = await _db.CategoriaAgente.FindAsync(id);
-            if (categoria != null)
-            {
-                if (!AuthHelper.PodeGerenciar(HttpContext, categoria.CriadoPorUsuarioId))
-                {
-                    TempData["Erro"] = "Voce so pode excluir categorias criadas por voce.";
-                    return RedirectToAction("Index");
-                }
+            var resultado = await _service.ExcluirAsync(id, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso)
+                TempData["Erro"] = resultado.Erro;
+            else if (resultado.Dados)
+                TempData["Sucesso"] = "Categoria excluida com sucesso.";
 
-                bool temAgentes = await _db.Agente.AnyAsync(a => a.CategoriaAgenteId == id);
-
-                if (temAgentes)
-                {
-                    TempData["Erro"] = "Nao foi possivel excluir esta categoria pois ela possui agentes vinculados.";
-                }
-                else
-                {
-                    _db.CategoriaAgente.Remove(categoria);
-                    await _db.SaveChangesAsync();
-                    TempData["Sucesso"] = "Categoria excluida com sucesso.";
-                }
-            }
             return RedirectToAction("Index");
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AgenticContextEngine.Data;
+using AgenticContextEngine.Data.Repositories;
 using AgenticContextEngine.Services;
 using AgenticContextEngine.Models;
 
@@ -29,6 +30,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IAgenteRepository, AgenteRepository>();
+builder.Services.AddScoped<ICanalRepository, CanalRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<ISimulacaoRepository, SimulacaoRepository>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IAgenteService, AgenteService>();
+builder.Services.AddScoped<ICanalService, CanalService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<ISimulacaoService, SimulacaoService>();
 
 var mysqlHost = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
 var mysqlPort = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";

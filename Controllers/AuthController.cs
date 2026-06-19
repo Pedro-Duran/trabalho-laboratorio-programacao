@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AgenticContextEngine.Data;
+using AgenticContextEngine.Services;
 
 namespace AgenticContextEngine.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly IAuthService _authService;
 
-        public AuthController(AppDbContext db)
+        public AuthController(IAuthService authService)
         {
-            _db = db;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -24,29 +23,17 @@ namespace AgenticContextEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string email, string senha)
         {
-            var usuario = await _db.Usuario
-                .Include(u => u.PerfilAcesso)
-                .FirstOrDefaultAsync(u => u.Email == email && u.Ativo);
+            var resultado = await _authService.LoginAsync(email, senha);
 
-            if (usuario == null || !BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
+            if (!resultado.Sucesso || resultado.Dados == null)
             {
-                ViewBag.Erro = "Email ou senha inválidos.";
+                ViewBag.Erro = resultado.Erro;
                 return View();
             }
 
-            HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
-            HttpContext.Session.SetString("UsuarioNome", usuario.Nome);
-            HttpContext.Session.SetString("UsuarioPerfil", usuario.PerfilAcesso?.Nome ?? "");
-
-            _db.LogAuditoria.Add(new Models.LogAuditoria
-            {
-                UsuarioId = usuario.Id,
-                Acao = "LOGIN",
-                Entidade = "Usuario",
-                EntidadeId = usuario.Id,
-                Detalhes = "Login realizado com sucesso"
-            });
-            await _db.SaveChangesAsync();
+            HttpContext.Session.SetString("UsuarioId", resultado.Dados.Id.ToString());
+            HttpContext.Session.SetString("UsuarioNome", resultado.Dados.Nome);
+            HttpContext.Session.SetString("UsuarioPerfil", resultado.Dados.Perfil);
 
             return RedirectToAction("Index", "Categorias");
         }

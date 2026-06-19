@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AgenticContextEngine.Data;
 using AgenticContextEngine.Models;
 using AgenticContextEngine.Services;
 
@@ -8,11 +6,11 @@ namespace AgenticContextEngine.Controllers
 {
     public class CanaisController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly ICanalService _service;
 
-        public CanaisController(AppDbContext db)
+        public CanaisController(ICanalService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<IActionResult> Index()
@@ -20,21 +18,10 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var canais = await _db.CanalOrigem
-                .Select(c => new CanalListItemDto
-                {
-                    Id = c.Id,
-                    Nome = c.Nome,
-                    UrlSite = c.UrlSite,
-                    Descricao = c.Descricao,
-                    Ativo = c.Ativo,
-                    DataCriacao = c.DataCriacao,
-                    CriadoPorUsuarioId = c.CriadoPorUsuarioId
-                })
-                .ToListAsync();
-            ViewBag.TotalSessoes = await _db.SessaoAtendimento.CountAsync();
+            var resultado = await _service.ListarAsync();
+            ViewBag.TotalSessoes = resultado.TotalSessoes;
 
-            return View(canais);
+            return View(resultado.Canais);
         }
 
         public IActionResult Criar()
@@ -63,17 +50,7 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var canal = new CanalOrigem
-            {
-                Nome = dto.Nome,
-                UrlSite = dto.UrlSite,
-                Descricao = dto.Descricao,
-                Ativo = dto.Ativo,
-                DataCriacao = DateTime.Now,
-                CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext)
-            };
-            _db.CanalOrigem.Add(canal);
-            await _db.SaveChangesAsync();
+            await _service.CriarAsync(dto, AuthHelper.GetUsuarioId(HttpContext));
             return RedirectToAction("Index");
         }
 
@@ -82,24 +59,14 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var canal = await _db.CanalOrigem.FindAsync(id);
-            if (canal == null) return NotFound();
-
-            if (!AuthHelper.PodeGerenciar(HttpContext, canal.CriadoPorUsuarioId))
+            var resultado = await _service.ObterParaEdicaoAsync(id, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso || resultado.Dados == null)
             {
-                TempData["Erro"] = "Voce so pode editar canais criados por voce.";
+                TempData["Erro"] = resultado.Erro;
                 return RedirectToAction("Index");
             }
 
-            var dto = new CanalFormDto
-            {
-                Id = canal.Id,
-                Nome = canal.Nome,
-                UrlSite = canal.UrlSite,
-                Descricao = canal.Descricao,
-                Ativo = canal.Ativo
-            };
-            return View(dto);
+            return View(resultado.Dados);
         }
 
         [HttpPost]
@@ -108,21 +75,10 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existente = await _db.CanalOrigem.FindAsync(dto.Id);
-            if (existente == null) return NotFound();
+            var resultado = await _service.EditarAsync(dto, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso)
+                TempData["Erro"] = resultado.Erro;
 
-            if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
-            {
-                TempData["Erro"] = "Voce so pode editar canais criados por voce.";
-                return RedirectToAction("Index");
-            }
-
-            existente.Nome = dto.Nome;
-            existente.UrlSite = dto.UrlSite;
-            existente.Descricao = dto.Descricao;
-            existente.Ativo = dto.Ativo;
-
-            await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -131,29 +87,12 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var canal = await _db.CanalOrigem.FindAsync(id);
-            if (canal != null)
-            {
-                if (!AuthHelper.PodeGerenciar(HttpContext, canal.CriadoPorUsuarioId))
-                {
-                    TempData["Erro"] = "Voce so pode excluir canais criados por voce.";
-                    return RedirectToAction("Index");
-                }
+            var resultado = await _service.ExcluirAsync(id, AuthHelper.GetUsuarioId(HttpContext), AuthHelper.IsAdmin(HttpContext));
+            if (!resultado.Sucesso)
+                TempData["Erro"] = resultado.Erro;
+            else if (resultado.Dados)
+                TempData["Sucesso"] = "Canal excluido com sucesso.";
 
-                bool temSessoes = await _db.SessaoAtendimento.AnyAsync(s => s.CanalOrigemId == id);
-                bool temEstatisticas = await _db.EstatisticaAcesso.AnyAsync(e => e.CanalOrigemId == id);
-
-                if (temSessoes || temEstatisticas)
-                {
-                    TempData["Erro"] = "Nao foi possivel excluir este canal pois ele possui sessoes vinculadas.";
-                }
-                else
-                {
-                    _db.CanalOrigem.Remove(canal);
-                    await _db.SaveChangesAsync();
-                    TempData["Sucesso"] = "Canal excluido com sucesso.";
-                }
-            }
             return RedirectToAction("Index");
         }
     }

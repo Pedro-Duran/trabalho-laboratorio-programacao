@@ -18,17 +18,19 @@ namespace AgenticContextEngine.Services
         public static bool IsAdmin(HttpContext ctx) =>
             GetPerfil(ctx) == PerfilAdministrador;
 
-    
+        public static bool PodeCriar(string? perfil) => perfil != "Convidado";
+
         public static bool PodeCriar(HttpContext ctx) =>
-            GetPerfil(ctx) != "Convidado";
+            PodeCriar(GetPerfil(ctx));
 
-        
-        public static bool PodeGerenciar(HttpContext ctx, int? criadoPorUsuarioId)
+        // Versao pura, sem dependencia de HttpContext, para uso na camada de servico.
+        public static bool PodeGerenciar(bool isAdmin, int? usuarioId, int? criadoPorUsuarioId)
         {
-            if (IsAdmin(ctx)) return true;
-
-            var usuarioId = GetUsuarioId(ctx);
+            if (isAdmin) return true;
             return usuarioId.HasValue && criadoPorUsuarioId.HasValue && usuarioId == criadoPorUsuarioId;
         }
+
+        public static bool PodeGerenciar(HttpContext ctx, int? criadoPorUsuarioId) =>
+            PodeGerenciar(IsAdmin(ctx), GetUsuarioId(ctx), criadoPorUsuarioId);
     }
 }

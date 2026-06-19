@@ -18,6 +18,7 @@ namespace AgenticContextEngine.Models
         public string NomeAgente { get; set; } = string.Empty;
         public string CategoriaAgente { get; set; } = string.Empty;
         public string NomeCanal { get; set; } = string.Empty;
+        public DateTime DataInicio { get; set; }
         public List<MensagemDto> Mensagens { get; set; } = new();
     }
 }

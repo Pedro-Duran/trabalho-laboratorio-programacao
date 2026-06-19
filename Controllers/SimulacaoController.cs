@@ -1,22 +1,15 @@
-﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AgenticContextEngine.Data;
-using AgenticContextEngine.Models;
-using AgenticContextEngine.Business;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using AgenticContextEngine.Services;
 
 namespace AgenticContextEngine.Controllers
 {
     public class SimulacaoController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly ISimulacaoService _service;
 
-        public SimulacaoController(AppDbContext db)
+        public SimulacaoController(ISimulacaoService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<IActionResult> Index()
@@ -24,30 +17,8 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var model = new ChatIndexViewModel
-            {
-                Agentes = await _db.Agente
-                    .Where(a => a.Ativo)
-                    .Select(a => new AgenteOpcaoDto { Id = a.Id, Nome = a.Nome })
-                    .ToListAsync(),
-                Canais = await _db.CanalOrigem
-                    .Where(c => c.Ativo)
-                    .Select(c => new CanalOpcaoDto { Id = c.Id, Nome = c.Nome, UrlSite = c.UrlSite })
-                    .ToListAsync()
-            };
-
-            ViewBag.SessoesRecentes = await _db.SessaoAtendimento
-                .Where(s => s.Status == "Ativa")
-                .OrderByDescending(s => s.DataInicio)
-                .Take(5)
-                .Select(s => new SessaoRecenteDto
-                {
-                    Id = s.Id,
-                    NomeAgente = s.Agente != null ? s.Agente.Nome : "-",
-                    NomeCanal = s.CanalOrigem != null ? s.CanalOrigem.Nome : "-",
-                    DataInicio = s.DataInicio
-                })
-                .ToListAsync();
+            var model = await _service.ObterIndexAsync();
+            ViewBag.SessoesRecentes = await _service.ObterSessoesRecentesAsync();
 
             return View(model);
         }
@@ -58,54 +29,13 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var agente = await _db.Agente.Include(a => a.CategoriaAgente).FirstOrDefaultAsync(a => a.Id == agenteId);
-            var canal = await _db.CanalOrigem.FindAsync(canalOrigemId);
+            var usuarioId = AuthHelper.GetUsuarioId(HttpContext);
+            var resultado = await _service.IniciarOuRetomarChatAsync(agenteId, canalOrigemId, usuarioId);
 
-            if (agente == null || canal == null)
-                return NotFound("Agente ou Canal invÃ¡lido.");
+            if (!resultado.Sucesso || resultado.Dados == null)
+                return NotFound(resultado.Erro);
 
-            var sessao = await _db.SessaoAtendimento
-                .Include(s => s.Mensagens)
-                .FirstOrDefaultAsync(s => s.AgenteId == agenteId && s.CanalOrigemId == canalOrigemId && s.Status == "Ativa");
-
-            if (sessao == null)
-            {
-                sessao = new SessaoAtendimento
-                {
-                    AgenteId = agenteId,
-                    CanalOrigemId = canalOrigemId,
-                    UsuarioId = int.TryParse(HttpContext.Session.GetString("UsuarioId"), out var uid) && uid > 0 ? uid : null,
-                    Titulo = $"SimulaÃ§Ã£o: {agente.Nome} em {canal.Nome}",
-                    Status = "Ativa",
-                    DataInicio = DateTime.Now
-                };
-                _db.SessaoAtendimento.Add(sessao);
-                await _db.SaveChangesAsync();
-            }
-
-            var model = new ChatSessaoViewModel
-            {
-                AgenteId = agenteId,
-                CanalOrigemId = canalOrigemId,
-                SessaoId = sessao.Id,
-                NomeAgente = agente.Nome,
-                CategoriaAgente = agente.CategoriaAgente?.Nome ?? "Geral",
-                NomeCanal = canal.Nome,
-                Mensagens = sessao.Mensagens
-                    .OrderBy(m => m.DataEnvio)
-                    .Select(m => new MensagemDto
-                    {
-                        Id = m.Id,
-                        Conteudo = m.Conteudo,
-                        Remetente = m.Remetente,
-                        DataEnvio = m.DataEnvio
-                    })
-                    .ToList()
-            };
-
-            ViewBag.DataInicio = sessao.DataInicio;
-
-            return View(model);
+            return View(resultado.Dados);
         }
 
         [HttpPost]
@@ -114,56 +44,11 @@ namespace AgenticContextEngine.Controllers
             if (string.IsNullOrWhiteSpace(conteudo))
                 return BadRequest(new { erro = "Mensagem vazia." });
 
-            var sessao = await _db.SessaoAtendimento
-                .Include(s => s.Agente)
-                .ThenInclude(a => a!.CategoriaAgente)
-                .FirstOrDefaultAsync(s => s.Id == sessaoId);
-
-            if (sessao == null || sessao.Agente == null)
+            var resultado = await _service.EnviarMensagemAsync(sessaoId, conteudo);
+            if (!resultado.Sucesso || resultado.Dados == null)
                 return NotFound();
 
-            var msgUsuario = new Mensagem
-            {
-                SessaoAtendimentoId = sessaoId,
-                Conteudo = conteudo,
-                Remetente = "UsuÃ¡rio",
-                DataEnvio = DateTime.Now
-            };
-            _db.Mensagem.Add(msgUsuario);
-
-            AgenteBase agenteNegocio = AgenteFactory.CriarAgente(sessao.Agente);
-            string respostaSimulada = agenteNegocio.ProcessarMensagem(conteudo);
-
-            var msgAgente = new Mensagem
-            {
-                SessaoAtendimentoId = sessaoId,
-                Conteudo = respostaSimulada,
-                Remetente = sessao.Agente.Nome,
-                DataEnvio = DateTime.Now.AddSeconds(1)
-            };
-            _db.Mensagem.Add(msgAgente);
-
-            var estatistica = await _db.EstatisticaAcesso
-                .FirstOrDefaultAsync(e => e.AgenteId == sessao.AgenteId && e.CanalOrigemId == sessao.CanalOrigemId && e.DataReferencia == DateTime.Today);
-
-            if (estatistica == null)
-            {
-                _db.EstatisticaAcesso.Add(new EstatisticaAcesso
-                {
-                    AgenteId = sessao.AgenteId,
-                    CanalOrigemId = sessao.CanalOrigemId,
-                    TotalSessoes = 1,
-                    TotalMensagens = 2,
-                    DataReferencia = DateTime.Today
-                });
-            }
-            else
-            {
-                estatistica.TotalMensagens += 2;
-                _db.EstatisticaAcesso.Update(estatistica);
-            }
-
-            await _db.SaveChangesAsync();
+            var dados = resultado.Dados;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
@@ -171,19 +56,19 @@ namespace AgenticContextEngine.Controllers
                 {
                     usuario = new
                     {
-                        conteudo = msgUsuario.Conteudo,
-                        dataEnvio = msgUsuario.DataEnvio.ToString("dd/MM HH:mm")
+                        conteudo = dados.ConteudoUsuario,
+                        dataEnvio = dados.DataEnvioUsuario
                     },
                     agente = new
                     {
-                        nome = sessao.Agente.Nome,
-                        conteudo = msgAgente.Conteudo,
-                        dataEnvio = msgAgente.DataEnvio.ToString("dd/MM HH:mm")
+                        nome = dados.NomeAgente,
+                        conteudo = dados.ConteudoAgente,
+                        dataEnvio = dados.DataEnvioAgente
                     }
                 });
             }
 
-            return RedirectToAction("Chat", new { agenteId = sessao.AgenteId, canalOrigemId = sessao.CanalOrigemId });
+            return RedirectToAction("Chat", new { agenteId = dados.AgenteId, canalOrigemId = dados.CanalOrigemId });
         }
     }
 }

@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AgenticContextEngine.Data;
 using AgenticContextEngine.Models;
 using AgenticContextEngine.Services;
 
@@ -8,11 +6,11 @@ namespace AgenticContextEngine.Controllers
 {
     public class UsuariosController : Controller
     {
-        private readonly AppDbContext _db;
+        private readonly IUsuarioService _service;
 
-        public UsuariosController(AppDbContext db)
+        public UsuariosController(IUsuarioService service)
         {
-            _db = db;
+            _service = service;
         }
 
         public async Task<IActionResult> Index()
@@ -20,22 +18,12 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var usuarios = await _db.Usuario
-                .Select(u => new UsuarioListItemDto
-                {
-                    Id = u.Id,
-                    Nome = u.Nome,
-                    Email = u.Email,
-                    PerfilNome = u.PerfilAcesso != null ? u.PerfilAcesso.Nome : "-",
-                    Ativo = u.Ativo,
-                    DataCriacao = u.DataCriacao
-                })
-                .ToListAsync();
+            var resultado = await _service.ListarAsync();
 
-            ViewBag.TotalAdmins = usuarios.Count(u => u.PerfilNome == "Administrador");
-            ViewBag.TotalPerfis = await _db.PerfilAcesso.CountAsync();
+            ViewBag.TotalAdmins = resultado.TotalAdmins;
+            ViewBag.TotalPerfis = resultado.TotalPerfis;
 
-            return View(usuarios);
+            return View(resultado.Usuarios);
         }
 
         public async Task<IActionResult> Criar()
@@ -49,9 +37,7 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Perfis = await _db.PerfilAcesso
-                .Select(p => new OpcaoSelecaoDto { Id = p.Id, Nome = p.Nome })
-                .ToListAsync();
+            ViewBag.Perfis = await _service.ObterPerfisAsync();
             return View();
         }
 
@@ -64,16 +50,7 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var usuario = new Usuario
-            {
-                Nome = dto.Nome,
-                Email = dto.Email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.SenhaHash),
-                PerfilAcessoId = dto.PerfilAcessoId,
-                DataCriacao = DateTime.Now
-            };
-            _db.Usuario.Add(usuario);
-            await _db.SaveChangesAsync();
+            await _service.CriarAsync(dto);
             return RedirectToAction("Index");
         }
 
@@ -88,21 +65,10 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var usuario = await _db.Usuario.FindAsync(id);
-            if (usuario == null) return NotFound();
+            var dto = await _service.ObterParaEdicaoAsync(id);
+            if (dto == null) return NotFound();
 
-            var dto = new UsuarioEditDto
-            {
-                Id = usuario.Id,
-                Nome = usuario.Nome,
-                Email = usuario.Email,
-                PerfilAcessoId = usuario.PerfilAcessoId,
-                Ativo = usuario.Ativo
-            };
-
-            ViewBag.Perfis = await _db.PerfilAcesso
-                .Select(p => new OpcaoSelecaoDto { Id = p.Id, Nome = p.Nome })
-                .ToListAsync();
+            ViewBag.Perfis = await _service.ObterPerfisAsync();
             return View(dto);
         }
 
@@ -115,25 +81,13 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var usuario = await _db.Usuario.FindAsync(dto.Id);
-            if (usuario == null) return NotFound();
-
-            if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
+            var resultado = await _service.EditarAsync(dto);
+            if (!resultado.Sucesso)
             {
-                if (string.IsNullOrEmpty(dto.SenhaAtual) || !BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, usuario.SenhaHash))
-                {
-                    TempData["Erro"] = "Senha atual incorreta. A senha nao foi alterada.";
-                    return RedirectToAction("Editar", new { id = dto.Id });
-                }
-                usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
+                TempData["Erro"] = resultado.Erro;
+                return RedirectToAction("Editar", new { id = dto.Id });
             }
 
-            usuario.Nome = dto.Nome;
-            usuario.Email = dto.Email;
-            usuario.PerfilAcessoId = dto.PerfilAcessoId;
-            usuario.Ativo = dto.Ativo;
-
-            await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -148,12 +102,7 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            var usuario = await _db.Usuario.FindAsync(id);
-            if (usuario != null)
-            {
-                _db.Usuario.Remove(usuario);
-                await _db.SaveChangesAsync();
-            }
+            await _service.ExcluirAsync(id);
             return RedirectToAction("Index");
         }
     }
