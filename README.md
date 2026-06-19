@@ -162,15 +162,5 @@ docker compose down
 
 ## Grupo
 
-| Nome | Responsabilidade |
-|---|---|
-| Allan Gustavo | Banco de dados (10 tabelas, FKs), estrutura de Orientação a Objetos (Herança, Polimorfismo, Interfaces), Login e autenticação |
-| Pedro Duran | Infraestrutura com Docker e Docker Compose, configuração do banco MySQL, Ajustes na autenticação, na exibição de algumas telas e nos DTOs |
-| Guilherme | CRUD de Categorias de Agente |
-| Gabriel Costa | CRUD de Agentes |
-| Lucas | CRUD de Usuários |
-| Reinan | CRUD de Canais de Origem |
-| Leonardo José | Interface de Chat/Simulação e histórico persistido |
-| Nicolas | Dashboard Estatístico e gráficos |
 
 **Data de Apresentação:** 19/06/2026
