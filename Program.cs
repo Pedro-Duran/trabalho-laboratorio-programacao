@@ -124,7 +124,7 @@ using (var scope = app.Services.CreateScope())
         {
             Nome = "Administrador",
             Email = "admin@sistema.com",
-            SenhaHash = "123456",
+            SenhaHash = BCrypt.Net.BCrypt.HashPassword("123456"),
             PerfilAcessoId = perfilAdmin.Id,
             Ativo = true
         });
@@ -133,7 +133,7 @@ using (var scope = app.Services.CreateScope())
         {
             Nome = "Usuario Regular",
             Email = "regular@sistema.com",
-            SenhaHash = "123456",
+            SenhaHash = BCrypt.Net.BCrypt.HashPassword("123456"),
             PerfilAcessoId = perfilRegular.Id,
             Ativo = true
         });

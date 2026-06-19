@@ -68,7 +68,7 @@ namespace AgenticContextEngine.Controllers
             {
                 Nome = dto.Nome,
                 Email = dto.Email,
-                SenhaHash = dto.SenhaHash,
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.SenhaHash),
                 PerfilAcessoId = dto.PerfilAcessoId,
                 DataCriacao = DateTime.Now
             };
@@ -120,12 +120,12 @@ namespace AgenticContextEngine.Controllers
 
             if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
             {
-                if (dto.SenhaAtual != usuario.SenhaHash)
+                if (string.IsNullOrEmpty(dto.SenhaAtual) || !BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, usuario.SenhaHash))
                 {
                     TempData["Erro"] = "Senha atual incorreta. A senha nao foi alterada.";
                     return RedirectToAction("Editar", new { id = dto.Id });
                 }
-                usuario.SenhaHash = dto.NovaSenha;
+                usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
             }
 
             usuario.Nome = dto.Nome;

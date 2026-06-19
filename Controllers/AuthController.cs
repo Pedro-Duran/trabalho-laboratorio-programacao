@@ -28,7 +28,7 @@ namespace AgenticContextEngine.Controllers
                 .Include(u => u.PerfilAcesso)
                 .FirstOrDefaultAsync(u => u.Email == email && u.Ativo);
 
-            if (usuario == null || usuario.SenhaHash != senha)
+            if (usuario == null || !BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
             {
                 ViewBag.Erro = "Email ou senha inválidos.";
                 return View();
