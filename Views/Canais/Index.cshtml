@@ -1,4 +1,4 @@
-﻿@model List<AgenticContextEngine.Models.CanalOrigem>
+﻿@model List<AgenticContextEngine.Models.CanalListItemDto>
 @{
     ViewData["Title"] = "Canais"; Layout = "~/Views/Shared/_Layout.cshtml";
     var isAdmin = Context.Session.GetString("UsuarioPerfil") == "Administrador";

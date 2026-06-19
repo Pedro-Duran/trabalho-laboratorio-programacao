@@ -1,4 +1,4 @@
-﻿@model AgenticContextEngine.Models.Agente
+﻿@model AgenticContextEngine.Models.AgenteFormDto
 @{
     Layout = null;
 }
@@ -31,7 +31,7 @@
             <div class="form-group">
                 <label>Categoria</label>
                 <select name="CategoriaAgenteId">
-                    @foreach (var cat in (List<AgenticContextEngine.Models.CategoriaAgente>)ViewBag.Categorias)
+                    @foreach (var cat in (List<AgenticContextEngine.Models.OpcaoSelecaoDto>)ViewBag.Categorias)
                     {
                         <option value="@cat.Id">@cat.Nome</option>
                     }

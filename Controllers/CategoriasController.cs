@@ -21,7 +21,17 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var categorias = await _db.CategoriaAgente.ToListAsync();
+            var categorias = await _db.CategoriaAgente
+                .Select(c => new CategoriaListItemDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome,
+                    Descricao = c.Descricao,
+                    Ativo = c.Ativo,
+                    DataCriacao = c.DataCriacao,
+                    CriadoPorUsuarioId = c.CriadoPorUsuarioId
+                })
+                .ToListAsync();
             return View(categorias);
         }
 
@@ -42,7 +52,7 @@ namespace AgenticContextEngine.Controllers
 
         // CREATE POST
         [HttpPost]
-        public async Task<IActionResult> Criar(CategoriaAgente categoria)
+        public async Task<IActionResult> Criar(CategoriaFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
@@ -53,7 +63,13 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            categoria.CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext);
+            var categoria = new CategoriaAgente
+            {
+                Nome = dto.Nome,
+                Descricao = dto.Descricao,
+                Ativo = dto.Ativo,
+                CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext)
+            };
             _db.CategoriaAgente.Add(categoria);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -74,17 +90,24 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(categoria);
+            var dto = new CategoriaFormDto
+            {
+                Id = categoria.Id,
+                Nome = categoria.Nome,
+                Descricao = categoria.Descricao,
+                Ativo = categoria.Ativo
+            };
+            return View(dto);
         }
 
         // EDIT POST
         [HttpPost]
-        public async Task<IActionResult> Editar(CategoriaAgente categoria)
+        public async Task<IActionResult> Editar(CategoriaFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existente = await _db.CategoriaAgente.FindAsync(categoria.Id);
+            var existente = await _db.CategoriaAgente.FindAsync(dto.Id);
             if (existente == null) return NotFound();
 
             if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
@@ -93,9 +116,9 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            existente.Nome = categoria.Nome;
-            existente.Descricao = categoria.Descricao;
-            existente.Ativo = categoria.Ativo;
+            existente.Nome = dto.Nome;
+            existente.Descricao = dto.Descricao;
+            existente.Ativo = dto.Ativo;
 
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

@@ -20,7 +20,18 @@ namespace AgenticContextEngine.Controllers
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var canais = await _db.CanalOrigem.ToListAsync();
+            var canais = await _db.CanalOrigem
+                .Select(c => new CanalListItemDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome,
+                    UrlSite = c.UrlSite,
+                    Descricao = c.Descricao,
+                    Ativo = c.Ativo,
+                    DataCriacao = c.DataCriacao,
+                    CriadoPorUsuarioId = c.CriadoPorUsuarioId
+                })
+                .ToListAsync();
             ViewBag.TotalSessoes = await _db.SessaoAtendimento.CountAsync();
 
             return View(canais);
@@ -41,7 +52,7 @@ namespace AgenticContextEngine.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar(CanalOrigem canal)
+        public async Task<IActionResult> Criar(CanalFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
@@ -52,8 +63,15 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            canal.DataCriacao = DateTime.Now;
-            canal.CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext);
+            var canal = new CanalOrigem
+            {
+                Nome = dto.Nome,
+                UrlSite = dto.UrlSite,
+                Descricao = dto.Descricao,
+                Ativo = dto.Ativo,
+                DataCriacao = DateTime.Now,
+                CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext)
+            };
             _db.CanalOrigem.Add(canal);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -73,16 +91,24 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(canal);
+            var dto = new CanalFormDto
+            {
+                Id = canal.Id,
+                Nome = canal.Nome,
+                UrlSite = canal.UrlSite,
+                Descricao = canal.Descricao,
+                Ativo = canal.Ativo
+            };
+            return View(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(CanalOrigem canal)
+        public async Task<IActionResult> Editar(CanalFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existente = await _db.CanalOrigem.FindAsync(canal.Id);
+            var existente = await _db.CanalOrigem.FindAsync(dto.Id);
             if (existente == null) return NotFound();
 
             if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
@@ -91,10 +117,10 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            existente.Nome = canal.Nome;
-            existente.UrlSite = canal.UrlSite;
-            existente.Descricao = canal.Descricao;
-            existente.Ativo = canal.Ativo;
+            existente.Nome = dto.Nome;
+            existente.UrlSite = dto.UrlSite;
+            existente.Descricao = dto.Descricao;
+            existente.Ativo = dto.Ativo;
 
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

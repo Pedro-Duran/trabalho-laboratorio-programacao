@@ -8,8 +8,8 @@ namespace AgenticContextEngine.Models
 {
     public class ChatIndexViewModel
     {
-        public List<Agente> Agentes { get; set; } = new();
-        public List<CanalOrigem> Canais { get; set; } = new();
+        public List<AgenteOpcaoDto> Agentes { get; set; } = new();
+        public List<CanalOpcaoDto> Canais { get; set; } = new();
     }
 
     public class ChatSessaoViewModel
@@ -20,6 +20,6 @@ namespace AgenticContextEngine.Models
         public string NomeAgente { get; set; } = string.Empty;
         public string CategoriaAgente { get; set; } = string.Empty;
         public string NomeCanal { get; set; } = string.Empty;
-        public List<Mensagem> Mensagens { get; set; } = new();
+        public List<MensagemDto> Mensagens { get; set; } = new();
     }
 }

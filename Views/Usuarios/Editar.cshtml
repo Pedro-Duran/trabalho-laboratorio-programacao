@@ -1,4 +1,4 @@
-﻿@model AgenticContextEngine.Models.Usuario
+﻿@model AgenticContextEngine.Models.UsuarioEditDto
 @{ ViewData["Title"] = "Editar Usuário"; Layout = null; }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -22,6 +22,12 @@
 <body>
     <div class="card">
         <h2>Editar Usuário</h2>
+        @if (TempData["Erro"] != null)
+        {
+            <div style="background: rgba(239,68,68,.12); border: 1px solid #ef4444; color: #fca5a5; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;">
+                @TempData["Erro"]
+            </div>
+        }
         <form method="post" action="/Usuarios/Editar">
             <input type="hidden" name="Id" value="@Model.Id" />
             <div class="form-group">
@@ -33,13 +39,17 @@
                 <input type="email" name="Email" value="@Model.Email" required />
             </div>
             <div class="form-group">
-                <label>Senha</label>
-                <input type="password" name="SenhaHash" value="@Model.SenhaHash" />
+                <label>Nova Senha</label>
+                <input type="password" name="NovaSenha" placeholder="Deixe em branco para manter a senha atual" autocomplete="new-password" />
+            </div>
+            <div class="form-group">
+                <label>Senha Atual (obrigatória apenas para trocar a senha)</label>
+                <input type="password" name="SenhaAtual" placeholder="Confirme a senha atual desta conta" autocomplete="current-password" />
             </div>
             <div class="form-group">
                 <label>Perfil</label>
                 <select name="PerfilAcessoId">
-                    @foreach (var p in (List<AgenticContextEngine.Models.PerfilAcesso>)ViewBag.Perfis)
+                    @foreach (var p in (List<AgenticContextEngine.Models.OpcaoSelecaoDto>)ViewBag.Perfis)
                     {
                         <option value="@p.Id" selected="@(p.Id == Model.PerfilAcessoId)">@p.Nome</option>
                     }

@@ -1,5 +1,4 @@
-﻿@model AgenticContextEngine.Models.Usuario
-@{
+﻿@{
     ViewData["Title"] = "Novo Usuário";
     Layout = null;
 }
@@ -42,7 +41,7 @@
                 <label>Perfil de Acesso</label>
                 <select name="PerfilAcessoId" required>
                     <option value="">Selecione...</option>
-                    @foreach (var perfil in (List<AgenticContextEngine.Models.PerfilAcesso>)ViewBag.Perfis)
+                    @foreach (var perfil in (List<AgenticContextEngine.Models.OpcaoSelecaoDto>)ViewBag.Perfis)
                     {
                         <option value="@perfil.Id">@perfil.Nome</option>
                     }

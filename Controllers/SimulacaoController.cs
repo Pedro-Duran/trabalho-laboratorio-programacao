@@ -28,16 +28,27 @@ namespace AgenticContextEngine.Controllers
 
             var model = new ChatIndexViewModel
             {
-                Agentes = await _db.Agente.Where(a => a.Ativo).ToListAsync(),
-                Canais = await _db.CanalOrigem.Where(c => c.Ativo).ToListAsync()
+                Agentes = await _db.Agente
+                    .Where(a => a.Ativo)
+                    .Select(a => new AgenteOpcaoDto { Id = a.Id, Nome = a.Nome })
+                    .ToListAsync(),
+                Canais = await _db.CanalOrigem
+                    .Where(c => c.Ativo)
+                    .Select(c => new CanalOpcaoDto { Id = c.Id, Nome = c.Nome, UrlSite = c.UrlSite })
+                    .ToListAsync()
             };
 
             ViewBag.SessoesRecentes = await _db.SessaoAtendimento
-                .Include(s => s.Agente)
-                .Include(s => s.CanalOrigem)
                 .Where(s => s.Status == "Ativa")
                 .OrderByDescending(s => s.DataInicio)
                 .Take(5)
+                .Select(s => new SessaoRecenteDto
+                {
+                    Id = s.Id,
+                    NomeAgente = s.Agente != null ? s.Agente.Nome : "-",
+                    NomeCanal = s.CanalOrigem != null ? s.CanalOrigem.Nome : "-",
+                    DataInicio = s.DataInicio
+                })
                 .ToListAsync();
 
             return View(model);
@@ -82,7 +93,16 @@ namespace AgenticContextEngine.Controllers
                 NomeAgente = agente.Nome,
                 CategoriaAgente = agente.CategoriaAgente?.Nome ?? "Geral",
                 NomeCanal = canal.Nome,
-                Mensagens = sessao.Mensagens.OrderBy(m => m.DataEnvio).ToList()
+                Mensagens = sessao.Mensagens
+                    .OrderBy(m => m.DataEnvio)
+                    .Select(m => new MensagemDto
+                    {
+                        Id = m.Id,
+                        Conteudo = m.Conteudo,
+                        Remetente = m.Remetente,
+                        DataEnvio = m.DataEnvio
+                    })
+                    .ToList()
             };
 
             ViewBag.DataInicio = sessao.DataInicio;

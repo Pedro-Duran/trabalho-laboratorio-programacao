@@ -1,4 +1,4 @@
-﻿@model List<AgenticContextEngine.Models.CategoriaAgente>
+﻿@model List<AgenticContextEngine.Models.CategoriaListItemDto>
 @{
     ViewData["Title"] = "Categorias"; Layout = "~/Views/Shared/_Layout.cshtml";
     var isAdmin = Context.Session.GetString("UsuarioPerfil") == "Administrador";

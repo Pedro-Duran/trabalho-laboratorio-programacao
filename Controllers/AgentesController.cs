@@ -21,7 +21,17 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Login", "Auth");
 
             var agentes = await _db.Agente
-                .Include(a => a.CategoriaAgente)
+                .Select(a => new AgenteListItemDto
+                {
+                    Id = a.Id,
+                    Nome = a.Nome,
+                    CategoriaNome = a.CategoriaAgente != null ? a.CategoriaAgente.Nome : "-",
+                    Descricao = a.Descricao,
+                    Instrucoes = a.Instrucoes,
+                    Ativo = a.Ativo,
+                    DataCriacao = a.DataCriacao,
+                    CriadoPorUsuarioId = a.CriadoPorUsuarioId
+                })
                 .ToListAsync();
 
             ViewBag.TotalMensagens = await _db.Mensagem.CountAsync();
@@ -41,12 +51,14 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Categorias = await _db.CategoriaAgente.ToListAsync();
+            ViewBag.Categorias = await _db.CategoriaAgente
+                .Select(c => new OpcaoSelecaoDto { Id = c.Id, Nome = c.Nome })
+                .ToListAsync();
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar(Agente agente)
+        public async Task<IActionResult> Criar(AgenteFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
@@ -57,8 +69,16 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            agente.DataCriacao = DateTime.Now;
-            agente.CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext);
+            var agente = new Agente
+            {
+                Nome = dto.Nome,
+                Descricao = dto.Descricao,
+                CategoriaAgenteId = dto.CategoriaAgenteId,
+                Instrucoes = dto.Instrucoes,
+                Ativo = dto.Ativo,
+                DataCriacao = DateTime.Now,
+                CriadoPorUsuarioId = AuthHelper.GetUsuarioId(HttpContext)
+            };
             _db.Agente.Add(agente);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -78,17 +98,29 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Categorias = await _db.CategoriaAgente.ToListAsync();
-            return View(agente);
+            var dto = new AgenteFormDto
+            {
+                Id = agente.Id,
+                Nome = agente.Nome,
+                CategoriaAgenteId = agente.CategoriaAgenteId,
+                Descricao = agente.Descricao,
+                Instrucoes = agente.Instrucoes,
+                Ativo = agente.Ativo
+            };
+
+            ViewBag.Categorias = await _db.CategoriaAgente
+                .Select(c => new OpcaoSelecaoDto { Id = c.Id, Nome = c.Nome })
+                .ToListAsync();
+            return View(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(Agente agente)
+        public async Task<IActionResult> Editar(AgenteFormDto dto)
         {
             if (HttpContext.Session.GetString("UsuarioId") == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existente = await _db.Agente.FindAsync(agente.Id);
+            var existente = await _db.Agente.FindAsync(dto.Id);
             if (existente == null) return NotFound();
 
             if (!AuthHelper.PodeGerenciar(HttpContext, existente.CriadoPorUsuarioId))
@@ -97,11 +129,11 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            existente.Nome = agente.Nome;
-            existente.Descricao = agente.Descricao;
-            existente.CategoriaAgenteId = agente.CategoriaAgenteId;
-            existente.Instrucoes = agente.Instrucoes;
-            existente.Ativo = agente.Ativo;
+            existente.Nome = dto.Nome;
+            existente.Descricao = dto.Descricao;
+            existente.CategoriaAgenteId = dto.CategoriaAgenteId;
+            existente.Instrucoes = dto.Instrucoes;
+            existente.Ativo = dto.Ativo;
 
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");

@@ -1,5 +1,4 @@
-﻿@model AgenticContextEngine.Models.Agente
-@{
+﻿@{
     ViewData["Title"] = "Novo Agente";
     Layout = null;
 }
@@ -34,7 +33,7 @@
                 <label>Categoria</label>
                 <select name="CategoriaAgenteId" required>
                     <option value="">Selecione...</option>
-                    @foreach (var cat in (List<AgenticContextEngine.Models.CategoriaAgente>)ViewBag.Categorias)
+                    @foreach (var cat in (List<AgenticContextEngine.Models.OpcaoSelecaoDto>)ViewBag.Categorias)
                     {
                         <option value="@cat.Id">@cat.Nome</option>
                     }

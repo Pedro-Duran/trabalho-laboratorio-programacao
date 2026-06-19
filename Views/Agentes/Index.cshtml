@@ -1,4 +1,4 @@
-﻿@model List<AgenticContextEngine.Models.Agente>
+﻿@model List<AgenticContextEngine.Models.AgenteListItemDto>
 @{
     ViewData["Title"] = "Agentes"; Layout = "~/Views/Shared/_Layout.cshtml";
     var isAdmin = Context.Session.GetString("UsuarioPerfil") == "Administrador";
@@ -55,7 +55,7 @@
                     <tr>
                         <td class="td-num">@i.ToString("D2")</td>
                         <td><div class="td-name"><div class="td-icon ti-purple"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18" /></svg></div>@a.Nome</div></td>
-                        <td><span class="badge b-purple">@a.CategoriaAgente?.Nome</span></td>
+                        <td><span class="badge b-purple">@a.CategoriaNome</span></td>
                         <td class="td-muted">@a.Descricao</td>
                         <td>@if(a.Ativo){
                             <span class="badge b-green"><span class="dot dot-green"></span>Ativo</span>
@@ -69,7 +69,7 @@
                     <td>
                         <template id="view-agente-@a.Id">
                             <div class="vrow"><span class="vlabel">Nome</span><span class="vvalue">@a.Nome</span></div>
-                            <div class="vrow"><span class="vlabel">Categoria</span><span class="vvalue">@(a.CategoriaAgente?.Nome ?? "-")</span></div>
+                            <div class="vrow"><span class="vlabel">Categoria</span><span class="vvalue">@a.CategoriaNome</span></div>
                             <div class="vrow"><span class="vlabel">Descrição</span><span class="vvalue">@(a.Descricao ?? "-")</span></div>
                             <div class="vrow"><span class="vlabel">Instruções</span><span class="vvalue">@(a.Instrucoes ?? "-")</span></div>
                             <div class="vrow"><span class="vlabel">Status</span><span class="vvalue">@(a.Ativo ? "Ativo" : "Inativo")</span></div>

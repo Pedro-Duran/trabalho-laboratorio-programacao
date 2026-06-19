@@ -21,10 +21,18 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Login", "Auth");
 
             var usuarios = await _db.Usuario
-                .Include(u => u.PerfilAcesso)
+                .Select(u => new UsuarioListItemDto
+                {
+                    Id = u.Id,
+                    Nome = u.Nome,
+                    Email = u.Email,
+                    PerfilNome = u.PerfilAcesso != null ? u.PerfilAcesso.Nome : "-",
+                    Ativo = u.Ativo,
+                    DataCriacao = u.DataCriacao
+                })
                 .ToListAsync();
 
-            ViewBag.TotalAdmins = usuarios.Count(u => u.PerfilAcesso?.Nome == "Administrador");
+            ViewBag.TotalAdmins = usuarios.Count(u => u.PerfilNome == "Administrador");
             ViewBag.TotalPerfis = await _db.PerfilAcesso.CountAsync();
 
             return View(usuarios);
@@ -41,12 +49,14 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Perfis = await _db.PerfilAcesso.ToListAsync();
+            ViewBag.Perfis = await _db.PerfilAcesso
+                .Select(p => new OpcaoSelecaoDto { Id = p.Id, Nome = p.Nome })
+                .ToListAsync();
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar(Usuario usuario)
+        public async Task<IActionResult> Criar(UsuarioCreateDto dto)
         {
             if (!AuthHelper.IsAdmin(HttpContext))
             {
@@ -54,7 +64,14 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            usuario.DataCriacao = DateTime.Now;
+            var usuario = new Usuario
+            {
+                Nome = dto.Nome,
+                Email = dto.Email,
+                SenhaHash = dto.SenhaHash,
+                PerfilAcessoId = dto.PerfilAcessoId,
+                DataCriacao = DateTime.Now
+            };
             _db.Usuario.Add(usuario);
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -73,12 +90,24 @@ namespace AgenticContextEngine.Controllers
 
             var usuario = await _db.Usuario.FindAsync(id);
             if (usuario == null) return NotFound();
-            ViewBag.Perfis = await _db.PerfilAcesso.ToListAsync();
-            return View(usuario);
+
+            var dto = new UsuarioEditDto
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                PerfilAcessoId = usuario.PerfilAcessoId,
+                Ativo = usuario.Ativo
+            };
+
+            ViewBag.Perfis = await _db.PerfilAcesso
+                .Select(p => new OpcaoSelecaoDto { Id = p.Id, Nome = p.Nome })
+                .ToListAsync();
+            return View(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(Usuario usuario)
+        public async Task<IActionResult> Editar(UsuarioEditDto dto)
         {
             if (!AuthHelper.IsAdmin(HttpContext))
             {
@@ -86,7 +115,24 @@ namespace AgenticContextEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            _db.Usuario.Update(usuario);
+            var usuario = await _db.Usuario.FindAsync(dto.Id);
+            if (usuario == null) return NotFound();
+
+            if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
+            {
+                if (dto.SenhaAtual != usuario.SenhaHash)
+                {
+                    TempData["Erro"] = "Senha atual incorreta. A senha nao foi alterada.";
+                    return RedirectToAction("Editar", new { id = dto.Id });
+                }
+                usuario.SenhaHash = dto.NovaSenha;
+            }
+
+            usuario.Nome = dto.Nome;
+            usuario.Email = dto.Email;
+            usuario.PerfilAcessoId = dto.PerfilAcessoId;
+            usuario.Ativo = dto.Ativo;
+
             await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
