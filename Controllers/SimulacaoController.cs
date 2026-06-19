@@ -70,5 +70,27 @@ namespace AgenticContextEngine.Controllers
 
             return RedirectToAction("Chat", new { agenteId = dados.AgenteId, canalOrigemId = dados.CanalOrigemId });
         }
+
+        public async Task<IActionResult> LimparContexto(int sessaoId)
+        {
+            if (HttpContext.Session.GetString("UsuarioId") == null)
+                return RedirectToAction("Login", "Auth");
+
+            if (!AuthHelper.IsAdmin(HttpContext))
+            {
+                TempData["Erro"] = "Apenas administradores podem limpar o contexto.";
+                return RedirectToAction("Index");
+            }
+
+            var resultado = await _service.LimparContextoAsync(sessaoId);
+            if (!resultado.Sucesso || resultado.Dados == null)
+            {
+                TempData["Erro"] = resultado.Erro;
+                return RedirectToAction("Index");
+            }
+
+            TempData["Sucesso"] = "Contexto da sessao limpo com sucesso.";
+            return RedirectToAction("Chat", new { agenteId = resultado.Dados.AgenteId, canalOrigemId = resultado.Dados.CanalOrigemId });
+        }
     }
 }

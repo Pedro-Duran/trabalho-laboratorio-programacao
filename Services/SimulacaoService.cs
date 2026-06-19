@@ -116,5 +116,18 @@ namespace AgenticContextEngine.Services
                 DataEnvioAgente = msgAgente.DataEnvio.ToString("dd/MM HH:mm")
             });
         }
+
+        public async Task<OperationResult<ChatRedirectDto>> LimparContextoAsync(int sessaoId)
+        {
+            var sessao = await _repository.LimparContextoAsync(sessaoId);
+            if (sessao == null)
+                return OperationResult<ChatRedirectDto>.Falha("Sessao nao encontrada.");
+
+            return OperationResult<ChatRedirectDto>.Ok(new ChatRedirectDto
+            {
+                AgenteId = sessao.AgenteId,
+                CanalOrigemId = sessao.CanalOrigemId
+            });
+        }
     }
 }

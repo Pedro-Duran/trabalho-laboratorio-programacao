@@ -3,6 +3,7 @@
     ViewData["Title"] = "Simulação em Execução";
     Layout = "~/Views/Shared/_Layout.cshtml";
     DateTime dataInicio = Model.DataInicio;
+    var isAdmin = Context.Session.GetString("UsuarioPerfil") == "Administrador";
 }
 
 <style>
@@ -46,6 +47,18 @@
 </style>
 
 <div class="content">
+    @if (TempData["Erro"] != null)
+    {
+        <div style="background: rgba(239,68,68,.12); border: 1px solid #ef4444; color: #fca5a5; padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 13px;">
+            @TempData["Erro"]
+        </div>
+    }
+    @if (TempData["Sucesso"] != null)
+    {
+        <div style="background: rgba(16,185,129,.12); border: 1px solid #10b981; color: #6ee7b7; padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 13px;">
+            @TempData["Sucesso"]
+        </div>
+    }
     <div class="page-header">
         <div>
             <h1 class="page-title">Execução Contextual Ativa</h1>
@@ -69,8 +82,15 @@
                     </div>
                 </div>
             </div>
-            <div>
+            <div style="display:flex; align-items:center; gap:10px;">
                 <span class="badge b-blue">Origem: @Model.NomeCanal</span>
+                @if (isAdmin)
+                {
+                    <a href="/Simulacao/LimparContexto?sessaoId=@Model.SessaoId" class="fcancel" style="padding: 7px 14px; font-size:12px;" onclick="return confirm('Limpar todo o historico desta sessao? Esta acao nao pode ser desfeita.');">
+                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:5px;" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        Limpar Contexto
+                    </a>
+                }
             </div>
         </div>
 

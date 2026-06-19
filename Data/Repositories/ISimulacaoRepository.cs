@@ -16,6 +16,7 @@ namespace AgenticContextEngine.Data.Repositories
         Task<SessaoAtendimento?> GetSessaoComAgenteECategoriaAsync(int sessaoId);
         void AdicionarMensagem(Mensagem mensagem);
         Task RegistrarOuAtualizarEstatisticaAsync(int agenteId, int canalOrigemId);
+        Task<SessaoAtendimento?> LimparContextoAsync(int sessaoId);
         Task SaveChangesAsync();
     }
 }

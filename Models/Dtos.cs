@@ -130,6 +130,12 @@ namespace AgenticContextEngine.Models
         public DateTime DataInicio { get; set; }
     }
 
+    public class ChatRedirectDto
+    {
+        public int AgenteId { get; set; }
+        public int CanalOrigemId { get; set; }
+    }
+
     public class EnviarMensagemResultDto
     {
         public int AgenteId { get; set; }

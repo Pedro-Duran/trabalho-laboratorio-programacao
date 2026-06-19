@@ -92,6 +92,25 @@ namespace AgenticContextEngine.Data.Repositories
             }
         }
 
+        public async Task<SessaoAtendimento?> LimparContextoAsync(int sessaoId)
+        {
+            var sessao = await _context.SessaoAtendimento.FindAsync(sessaoId);
+            if (sessao == null) return null;
+
+            var mensagens = await _context.Mensagem
+                .Where(m => m.SessaoAtendimentoId == sessaoId)
+                .ToListAsync();
+            _context.Mensagem.RemoveRange(mensagens);
+
+            var contextos = await _context.ContextoMemoria
+                .Where(c => c.SessaoAtendimentoId == sessaoId)
+                .ToListAsync();
+            _context.ContextoMemoria.RemoveRange(contextos);
+
+            await _context.SaveChangesAsync();
+            return sessao;
+        }
+
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
     }
 }
